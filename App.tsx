@@ -17,8 +17,12 @@ const Footer = () => (
           Creating timeless memories through exquisite event styling. Based in the heart of Varanasi, we bring joy, color, and elegance to every celebration.
         </p>
         <div className="flex gap-4">
-          <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-primary transition-colors cursor-pointer"><Instagram className="w-5 h-5" /></div>
-          <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-primary transition-colors cursor-pointer"><Facebook className="w-5 h-5" /></div>
+          <a href="https://www.instagram.com/thedecoratingvaranasi/" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-primary transition-colors cursor-pointer">
+            <Instagram className="w-5 h-5" />
+          </a>
+          <a href="https://www.facebook.com/p/The-Decorating-Varanasi-61579304051679/" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-primary transition-colors cursor-pointer">
+            <Facebook className="w-5 h-5" />
+          </a>
         </div>
       </div>
       
@@ -37,15 +41,15 @@ const Footer = () => (
         <ul className="space-y-4 text-sm">
           <li className="flex items-center gap-3">
             <Phone className="w-4 h-4 text-secondary" />
-            <span>+91 9936169852</span>
+            <span>+91 92503 33876</span>
           </li>
           <li className="flex items-center gap-3">
             <Mail className="w-4 h-4 text-secondary" />
-            <span>hello@decoratingvaranasi.com</span>
+            <span>thedecoratingvaranasi@gmail.com</span>
           </li>
           <li className="flex items-start gap-3">
             <MapPin className="w-4 h-4 text-secondary mt-1" />
-            <span>Lanka, Varanasi, Uttar Pradesh, 221005</span>
+            <span>Brahmanand Colony, Durgakund, Varanasi</span>
           </li>
         </ul>
       </div>
@@ -177,7 +181,7 @@ const App: React.FC = () => {
 
         {/* Mobile Sticky CTA */}
         <div className="fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 p-3 md:hidden z-40 flex gap-2 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
-           <a href={`tel:+919936169852`} className="flex-1 bg-gray-100 text-gray-800 font-bold py-3 rounded-lg flex items-center justify-center gap-2">
+           <a href={`tel:+919250333876`} className="flex-1 bg-gray-100 text-gray-800 font-bold py-3 rounded-lg flex items-center justify-center gap-2">
              <Phone className="w-4 h-4" /> Call
            </a>
            <Link to="/booking" className="flex-1 bg-primary text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2">

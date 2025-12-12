@@ -1,6 +1,6 @@
 import { Service, Package, Testimonial } from './types';
 
-export const PHONE_NUMBER = "919936169852";
+export const PHONE_NUMBER = "919250333876";
 export const APP_NAME = "TheDecoratingVaranasi";
 
 export const SERVICES: Service[] = [
