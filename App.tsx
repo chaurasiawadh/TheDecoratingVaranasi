@@ -5,7 +5,7 @@ import { Hero } from './components/Hero';
 import { ServiceCard } from './components/ServiceCard';
 import { BookingModal } from './components/BookingModal';
 import { ServiceDetail } from './components/ServiceDetail';
-import { SERVICES, TESTIMONIALS } from './constants';
+import { SERVICES, TESTIMONIALS, LOGO_URL, APP_NAME } from './constants';
 import { motion } from 'framer-motion';
 import { Phone, Mail, MapPin, Instagram, Facebook } from 'lucide-react';
 
@@ -13,7 +13,11 @@ const Footer = () => (
   <footer className="bg-dark text-gray-300 py-16">
     <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-12">
       <div className="col-span-1 md:col-span-2">
-        <h2 className="text-2xl font-serif font-bold text-white mb-4">TheDecorating<span className="text-secondary">Varanasi</span></h2>
+        <img 
+          src={LOGO_URL} 
+          alt={APP_NAME} 
+          className="h-12 w-auto object-contain mb-6 rounded-lg bg-white/10"
+        />
         <p className="text-sm leading-relaxed mb-6 max-w-sm">
           Creating timeless memories through exquisite event styling. Based in the heart of Varanasi, we bring joy, color, and elegance to every celebration.
         </p>

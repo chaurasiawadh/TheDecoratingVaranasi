@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Calendar, CheckCircle, Smartphone } from 'lucide-react';
+import { X, Calendar, CheckCircle, Smartphone, AlertCircle } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { Service, Package, BookingFormData } from '../types';
 import { SERVICES, PACKAGES, PHONE_NUMBER } from '../constants';
@@ -24,7 +24,7 @@ export const BookingModal: React.FC = () => {
     message: ''
   });
 
-  const [step, setStep] = useState(1);
+  const [errors, setErrors] = useState<Partial<Record<keyof BookingFormData, string>>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
 
@@ -35,8 +35,58 @@ export const BookingModal: React.FC = () => {
     }
   }, [initialServiceId]);
 
+  const validateForm = () => {
+    const newErrors: Partial<Record<keyof BookingFormData, string>> = {};
+    const phoneRegex = /^[6-9]\d{9}$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    
+    if (!formData.fullName.trim()) {
+      newErrors.fullName = "Full Name is required";
+    } else if (formData.fullName.length < 3) {
+      newErrors.fullName = "Name must be at least 3 characters";
+    }
+
+    if (!formData.phone) {
+      newErrors.phone = "Phone number is required";
+    } else if (!phoneRegex.test(formData.phone)) {
+      newErrors.phone = "Enter a valid 10-digit Indian number";
+    }
+
+    if (formData.email && !emailRegex.test(formData.email)) {
+      newErrors.email = "Enter a valid email address";
+    }
+
+    if (!formData.date) {
+      newErrors.date = "Event date is required";
+    } else {
+      const selectedDate = new Date(formData.date);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      if (selectedDate < today) {
+        newErrors.date = "Date cannot be in the past";
+      }
+    }
+
+    if (!formData.address.trim()) {
+      newErrors.address = "Venue address is required";
+    }
+
+    if (formData.guests < 5) {
+      newErrors.guests = "Minimum 5 guests required";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+    
+    // Clear error for specific field on change
+    if (errors[name as keyof BookingFormData]) {
+      setErrors(prev => ({ ...prev, [name]: undefined }));
+    }
   };
 
   const handleServiceChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -49,6 +99,12 @@ export const BookingModal: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!validateForm()) {
+      // Shake animation or scroll to top could be added here
+      return;
+    }
+
     setIsSubmitting(true);
 
     // Simulate validation/api call
@@ -116,6 +172,14 @@ Source: Website
     );
   }
 
+  // Helper for input styling based on error state
+  const getInputClass = (fieldName: keyof BookingFormData) => `
+    w-full p-3 bg-gray-50 rounded-lg border outline-none transition-all
+    ${errors[fieldName] 
+      ? 'border-red-500 focus:ring-2 focus:ring-red-200 bg-red-50' 
+      : 'border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20'}
+  `;
+
   return (
     <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
       <motion.div 
@@ -161,33 +225,52 @@ Source: Website
         <div className="w-full md:w-2/3 p-6 md:p-8">
           <h2 className="text-3xl font-serif font-bold text-gray-900 mb-6">Plan Your Celebration</h2>
           
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4" noValidate>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1">
-                    <label className="text-xs font-bold text-gray-500 uppercase">Full Name</label>
+                    <label className="text-xs font-bold text-gray-500 uppercase">
+                      Full Name
+                    </label>
                     <input 
-                        required 
                         type="text" 
                         name="fullName" 
                         value={formData.fullName} 
                         onChange={handleChange}
-                        className="w-full p-3 bg-gray-50 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                        className={getInputClass('fullName')}
                         placeholder="John Doe"
                     />
+                    {errors.fullName && <p className="text-red-500 text-xs mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3"/> {errors.fullName}</p>}
                 </div>
                 <div className="space-y-1">
-                    <label className="text-xs font-bold text-gray-500 uppercase">Phone (+91)</label>
+                    <label className="text-xs font-bold text-gray-500 uppercase">
+                      Phone (+91)
+                    </label>
                     <input 
-                        required 
                         type="tel" 
-                        pattern="[6-9][0-9]{9}"
                         name="phone" 
                         value={formData.phone} 
                         onChange={handleChange}
-                        className="w-full p-3 bg-gray-50 rounded-lg border border-gray-200 focus:border-primary outline-none"
+                        className={getInputClass('phone')}
                         placeholder="9250333876"
+                        maxLength={10}
                     />
+                    {errors.phone && <p className="text-red-500 text-xs mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3"/> {errors.phone}</p>}
                 </div>
+            </div>
+
+            <div className="space-y-1">
+                 <label className="text-xs font-bold text-gray-500 uppercase">
+                    Email Address <span className="text-gray-300 font-normal normal-case">(Optional)</span>
+                 </label>
+                 <input 
+                    type="email" 
+                    name="email" 
+                    value={formData.email} 
+                    onChange={handleChange}
+                    className={getInputClass('email')}
+                    placeholder="you@example.com"
+                />
+                {errors.email && <p className="text-red-500 text-xs mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3"/> {errors.email}</p>}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -197,10 +280,11 @@ Source: Website
                         name="serviceId" 
                         value={formData.serviceId} 
                         onChange={handleServiceChange}
-                        className="w-full p-3 bg-gray-50 rounded-lg border border-gray-200 outline-none"
+                        className={getInputClass('serviceId')}
                     >
                         {SERVICES.map(s => <option key={s.id} value={s.id}>{s.title}</option>)}
                     </select>
+                    {errors.serviceId && <p className="text-red-500 text-xs mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3"/> {errors.serviceId}</p>}
                 </div>
                  <div className="space-y-1">
                     <label className="text-xs font-bold text-gray-500 uppercase">Package (Optional)</label>
@@ -208,7 +292,7 @@ Source: Website
                         name="packageId" 
                         value={formData.packageId} 
                         onChange={handleChange}
-                        className="w-full p-3 bg-gray-50 rounded-lg border border-gray-200 outline-none"
+                        className="w-full p-3 bg-gray-50 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                     >
                         <option value="">Select a package</option>
                         {filteredPackages.map(p => <option key={p.id} value={p.id}>{p.name} - ₹{p.price}</option>)}
@@ -218,43 +302,51 @@ Source: Website
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1">
-                    <label className="text-xs font-bold text-gray-500 uppercase">Event Date</label>
+                    <label className="text-xs font-bold text-gray-500 uppercase">
+                      Event Date
+                    </label>
                     <div className="relative">
                         <input 
-                            required 
                             type="date" 
                             name="date" 
                             value={formData.date} 
                             onChange={handleChange}
-                            className="w-full p-3 bg-gray-50 rounded-lg border border-gray-200 outline-none"
+                            className={getInputClass('date')}
+                            min={new Date().toISOString().split('T')[0]}
                         />
                         <Calendar className="absolute right-3 top-3 text-gray-400 w-5 h-5 pointer-events-none" />
                     </div>
+                    {errors.date && <p className="text-red-500 text-xs mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3"/> {errors.date}</p>}
                 </div>
                  <div className="space-y-1">
-                    <label className="text-xs font-bold text-gray-500 uppercase">Guest Count</label>
+                    <label className="text-xs font-bold text-gray-500 uppercase">
+                      Guest Count
+                    </label>
                     <input 
                         type="number" 
                         name="guests" 
                         value={formData.guests} 
                         onChange={handleChange}
-                        className="w-full p-3 bg-gray-50 rounded-lg border border-gray-200 outline-none"
+                        className={getInputClass('guests')}
                         min="5"
                     />
+                    {errors.guests && <p className="text-red-500 text-xs mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3"/> {errors.guests}</p>}
                 </div>
             </div>
 
             <div className="space-y-1">
-                <label className="text-xs font-bold text-gray-500 uppercase">Venue Address</label>
+                <label className="text-xs font-bold text-gray-500 uppercase">
+                  Venue Address
+                </label>
                 <input 
-                    required 
                     type="text" 
                     name="address" 
                     value={formData.address} 
                     onChange={handleChange}
-                    className="w-full p-3 bg-gray-50 rounded-lg border border-gray-200 outline-none"
+                    className={getInputClass('address')}
                     placeholder="Area, Street, City"
                 />
+                {errors.address && <p className="text-red-500 text-xs mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3"/> {errors.address}</p>}
             </div>
 
             <div className="space-y-1">
@@ -263,7 +355,7 @@ Source: Website
                     name="message" 
                     value={formData.message} 
                     onChange={handleChange}
-                    className="w-full p-3 bg-gray-50 rounded-lg border border-gray-200 outline-none h-24 resize-none"
+                    className="w-full p-3 bg-gray-50 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none h-24 resize-none transition-all"
                     placeholder="Specific theme colors, timing constraints, etc."
                 />
             </div>
@@ -272,7 +364,7 @@ Source: Website
                 <button 
                     type="submit" 
                     disabled={isSubmitting}
-                    className="w-full bg-primary hover:bg-purple-700 text-white font-bold py-4 rounded-xl shadow-lg hover:shadow-xl transform active:scale-95 transition-all flex items-center justify-center gap-2"
+                    className="w-full bg-primary hover:bg-purple-700 text-white font-bold py-4 rounded-xl shadow-lg hover:shadow-xl transform active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
                 >
                     {isSubmitting ? (
                         <span className="animate-pulse">Processing...</span>

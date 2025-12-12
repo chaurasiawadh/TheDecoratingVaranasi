@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, ShoppingBag, Heart, Search } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { LOGO_URL, APP_NAME } from '../constants';
 
 export const Header: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -30,9 +31,11 @@ export const Header: React.FC = () => {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link to="/" className="flex-shrink-0 flex items-center gap-2">
-            <span className={`font-serif text-2xl font-bold tracking-tight ${scrolled ? 'text-primary' : 'text-white'}`}>
-              TheDecorating<span className="text-secondary">Varanasi</span>
-            </span>
+            <img 
+              src={LOGO_URL} 
+              alt={APP_NAME} 
+              className="h-10 md:h-12 w-auto object-contain rounded-sm"
+            />
           </Link>
 
           {/* Desktop Menu */}

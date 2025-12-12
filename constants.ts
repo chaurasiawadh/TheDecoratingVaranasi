@@ -2,6 +2,7 @@ import { Service, Package, Testimonial, ProductItem } from './types';
 
 export const PHONE_NUMBER = "919250333876";
 export const APP_NAME = "TheDecoratingVaranasi";
+export const LOGO_URL = "https://thedecoratingvaranasi.com/wp-content/uploads/2025/10/cropped-cropped-WhatsApp-Image-2025-10-14-at-11.40.36-AM-300x108.jpeg";
 
 export const SERVICES: Service[] = [
   {
