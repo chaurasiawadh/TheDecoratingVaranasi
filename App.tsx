@@ -5,9 +5,11 @@ import { Hero } from './components/Hero';
 import { ServiceCard } from './components/ServiceCard';
 import { BookingModal } from './components/BookingModal';
 import { ServiceDetail } from './components/ServiceDetail';
-import { SERVICES, TESTIMONIALS, LOGO_URL, APP_NAME } from './constants';
+import { Admin } from './components/Admin';
+import { TESTIMONIALS, LOGO_URL, APP_NAME } from './constants';
 import { motion } from 'framer-motion';
 import { Phone, Mail, MapPin, Instagram, Facebook } from 'lucide-react';
+import { DataProvider, useData } from './contexts/DataContext';
 
 const Footer = () => (
   <footer className="bg-dark text-gray-300 py-16">
@@ -38,6 +40,7 @@ const Footer = () => (
           <li><Link to="/services" className="hover:text-secondary transition-colors">All Services</Link></li>
           <li><Link to="/booking" className="hover:text-secondary transition-colors">Book Now</Link></li>
           <li><Link to="/contact" className="hover:text-secondary transition-colors">Contact Us</Link></li>
+          <li><Link to="/admin" className="hover:text-secondary transition-colors">Admin Portal</Link></li>
         </ul>
       </div>
       
@@ -66,6 +69,12 @@ const Footer = () => (
 );
 
 const Home = () => {
+  const { services, loading } = useData();
+
+  if (loading && services.length === 0) {
+      return <div className="min-h-screen flex items-center justify-center text-primary">Loading amazing things...</div>;
+  }
+
   return (
     <>
       <Hero />
@@ -80,7 +89,7 @@ const Home = () => {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {SERVICES.map((service, index) => (
+            {services.map((service, index) => (
               <ServiceCard key={service.id} service={service} index={index} />
             ))}
           </div>
@@ -147,56 +156,64 @@ const Home = () => {
   );
 };
 
-const ServicesPage = () => (
-  <div className="pt-20 px-4 min-h-screen bg-gray-50 pb-20">
-    <div className="max-w-7xl mx-auto">
-        <h1 className="text-4xl font-serif font-bold text-center mb-12 mt-10">All Services</h1>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {SERVICES.map((service, index) => (
-              <ServiceCard key={service.id} service={service} index={index} />
-            ))}
-        </div>
+const ServicesPage = () => {
+  const { services } = useData();
+  return (
+    <div className="pt-20 px-4 min-h-screen bg-gray-50 pb-20">
+      <div className="max-w-7xl mx-auto">
+          <h1 className="text-4xl font-serif font-bold text-center mb-12 mt-10">All Services</h1>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {services.map((service, index) => (
+                <ServiceCard key={service.id} service={service} index={index} />
+              ))}
+          </div>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 const App: React.FC = () => {
   return (
-    <Router>
-      <div className="flex flex-col min-h-screen">
-        <Header />
-        
-        <main className="flex-grow">
+    <DataProvider>
+      <Router>
+        <div className="flex flex-col min-h-screen">
           <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/services" element={<ServicesPage />} />
-            {/* Dynamic route for specific service details */}
-            <Route path="/booking" element={
+            <Route path="/admin" element={<Admin />} />
+            
+            <Route path="*" element={
               <>
-                <Home /> 
-                <BookingModal />
+                <Header />
+                <main className="flex-grow">
+                  <Routes>
+                    <Route path="/" element={<Home />} />
+                    <Route path="/services" element={<ServicesPage />} />
+                    <Route path="/booking" element={
+                      <>
+                        <Home /> 
+                        <BookingModal />
+                      </>
+                    } />
+                    <Route path="/booking/:id" element={<ServiceDetail />} />
+                    <Route path="/services/:id" element={<ServiceDetail />} />
+                  </Routes>
+                </main>
+                <Footer />
+                
+                {/* Mobile Sticky CTA */}
+                <div className="fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 p-3 md:hidden z-40 flex gap-2 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
+                   <a href={`tel:+919250333876`} className="flex-1 bg-gray-100 text-gray-800 font-bold py-3 rounded-lg flex items-center justify-center gap-2">
+                     <Phone className="w-4 h-4" /> Call
+                   </a>
+                   <Link to="/booking" className="flex-1 bg-primary text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2">
+                      Book Now
+                   </Link>
+                </div>
               </>
             } />
-            {/* Service detail page, e.g. /booking?service=... is handled by BookingModal, 
-                but this is the browsing page for /services/birthday */}
-            <Route path="/booking/:id" element={<ServiceDetail />} /> {/* Catch for legacy links if any, though not used here */}
-            <Route path="/services/:id" element={<ServiceDetail />} />
           </Routes>
-        </main>
-
-        <Footer />
-
-        {/* Mobile Sticky CTA */}
-        <div className="fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 p-3 md:hidden z-40 flex gap-2 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
-           <a href={`tel:+919250333876`} className="flex-1 bg-gray-100 text-gray-800 font-bold py-3 rounded-lg flex items-center justify-center gap-2">
-             <Phone className="w-4 h-4" /> Call
-           </a>
-           <Link to="/booking" className="flex-1 bg-primary text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2">
-              Book Now
-           </Link>
         </div>
-      </div>
-    </Router>
+      </Router>
+    </DataProvider>
   );
 };
 

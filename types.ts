@@ -1,10 +1,17 @@
 export interface Service {
-  id: string;
-  title: string;
+  id: string; // Maps to 'slug' in Firestore
+  title: string; // Maps to 'service' in Firestore
   description: string;
-  image: string;
+  image: string; // Service Hero Image
   priceStart: number;
-  features: string[];
+  features: string[]; // Maps to 'tags' in Firestore
+  
+  // Extra Firestore fields
+  slug?: string;
+  currency?: string;
+  featured?: boolean;
+  createdAt?: number;
+  updatedAt?: number;
 }
 
 export interface Package {
@@ -20,15 +27,35 @@ export interface ProductItem {
   id: string;
   serviceId: string;
   name: string;
-  image: string;
+  image: string; // Maps to 'heroImage'
   price: number;
   oldPrice: number;
-  discount: number; // percentage
+  discount: number; // percentage, mapped from discountPercent
   shortDescription: string;
   fullDescription: string;
-  tags: string[]; // e.g., "bestseller", "outdoor", "premium"
+  tags: string[];
   rating: number;
-  reviews: number;
+  reviews: number; // mapped from reviewsCount
+
+  // Firestore Schema Fields
+  images?: string[];
+  discountPercent?: number;
+  discountText?: string;
+  currency?: string;
+  sku?: string;
+  availability?: string;
+  stockQty?: number;
+  deliveryOptions?: string[];
+  deliveryTimeEstimate?: string;
+  areaCoverage?: string;
+  guestsRecommended?: number;
+  isFeatured?: boolean;
+  meta?: {
+    seoTitle: string;
+    seoDescription: string;
+  };
+  createdAt?: number;
+  updatedAt?: number;
 }
 
 export interface BookingFormData {

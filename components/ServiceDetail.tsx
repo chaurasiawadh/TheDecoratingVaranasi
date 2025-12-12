@@ -1,14 +1,15 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Filter, ChevronDown, Search, ArrowLeft } from 'lucide-react';
-import { ALL_PRODUCTS, SERVICES } from '../constants';
+import { ChevronDown, Search, ArrowLeft } from 'lucide-react';
 import { ProductCard } from './ProductCard';
 import { ProductModal } from './ProductModal';
 import { ProductItem } from '../types';
+import { useData } from '../contexts/DataContext';
 
 export const ServiceDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
+  const { services, products } = useData();
   const [selectedProduct, setSelectedProduct] = useState<ProductItem | null>(null);
   const [filterTag, setFilterTag] = useState<string>('all');
   const [sortBy, setSortBy] = useState<string>('popular');
@@ -19,12 +20,12 @@ export const ServiceDetail: React.FC = () => {
     window.scrollTo(0, 0);
   }, [id]);
 
-  const service = SERVICES.find(s => s.id === id);
+  const service = services.find(s => s.id === id);
   
   // Filter products for this service
   const serviceProducts = useMemo(() => {
-    return ALL_PRODUCTS.filter(p => p.serviceId === id);
-  }, [id]);
+    return products.filter(p => p.serviceId === id);
+  }, [id, products]);
 
   // Extract unique tags
   const allTags = useMemo(() => {
@@ -57,7 +58,6 @@ export const ServiceDetail: React.FC = () => {
         result = result.filter(p => p.tags.includes('new')).concat(result.filter(p => !p.tags.includes('new')));
         break;
       default: // popular
-        // Assuming original order is somewhat curated or random, keeping as is or sorting by rating
         result.sort((a, b) => b.rating - a.rating);
     }
 
