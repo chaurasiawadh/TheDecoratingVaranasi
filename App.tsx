@@ -4,6 +4,7 @@ import { Header } from './components/Header';
 import { Hero } from './components/Hero';
 import { ServiceCard } from './components/ServiceCard';
 import { BookingModal } from './components/BookingModal';
+import { ServiceDetail } from './components/ServiceDetail';
 import { SERVICES, TESTIMONIALS } from './constants';
 import { motion } from 'framer-motion';
 import { Phone, Mail, MapPin, Instagram, Facebook } from 'lucide-react';
@@ -165,15 +166,17 @@ const App: React.FC = () => {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/services" element={<ServicesPage />} />
-            {/* The BookingModal acts as an overlay route concept, typically handled via state or parallel routes. 
-                For simplicity in this structure, we route to a page that renders the modal over the home content 
-                or just a standalone page. Here, we'll make /booking a standalone wrapper. */}
+            {/* Dynamic route for specific service details */}
             <Route path="/booking" element={
               <>
-                <Home /> {/* Render background content */}
-                <BookingModal /> {/* Render Modal on top */}
+                <Home /> 
+                <BookingModal />
               </>
             } />
+            {/* Service detail page, e.g. /booking?service=... is handled by BookingModal, 
+                but this is the browsing page for /services/birthday */}
+            <Route path="/booking/:id" element={<ServiceDetail />} /> {/* Catch for legacy links if any, though not used here */}
+            <Route path="/services/:id" element={<ServiceDetail />} />
           </Routes>
         </main>
 

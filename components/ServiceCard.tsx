@@ -19,7 +19,8 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({ service, index }) => {
       whileHover={{ y: -10 }}
       className="group relative bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-100"
     >
-      <div className="h-64 overflow-hidden relative">
+      {/* Click image to go to listing */}
+      <Link to={`/services/${service.id}`} className="block h-64 overflow-hidden relative cursor-pointer">
         <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors z-10" />
         <img
           src={service.image}
@@ -31,12 +32,14 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({ service, index }) => {
           <Star className="w-3 h-3 fill-current" />
           Top Rated
         </div>
-      </div>
+      </Link>
       
       <div className="p-6 relative">
-        <h3 className="text-2xl font-serif font-bold text-gray-900 mb-2 group-hover:text-primary transition-colors">
-          {service.title}
-        </h3>
+        <Link to={`/services/${service.id}`}>
+            <h3 className="text-2xl font-serif font-bold text-gray-900 mb-2 group-hover:text-primary transition-colors cursor-pointer">
+            {service.title}
+            </h3>
+        </Link>
         <p className="text-gray-600 mb-4 line-clamp-2 text-sm">
           {service.description}
         </p>
@@ -56,9 +59,9 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({ service, index }) => {
             <div className="font-bold text-lg text-gray-900">₹{service.priceStart.toLocaleString()}</div>
           </div>
           
-          <Link to={`/booking?service=${service.id}`}>
+          <Link to={`/services/${service.id}`}>
             <button className="flex items-center gap-2 text-primary font-bold text-sm hover:gap-3 transition-all">
-              Book Now <ArrowRight className="w-4 h-4" />
+              View Items <ArrowRight className="w-4 h-4" />
             </button>
           </Link>
         </div>

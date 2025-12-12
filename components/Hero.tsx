@@ -1,15 +1,30 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
+const HERO_IMAGES = [
+  "https://images.pexels.com/photos/796606/pexels-photo-796606.jpeg",
+  "https://images.pexels.com/photos/6229135/pexels-photo-6229135.jpeg",
+  "https://images.pexels.com/photos/1045541/pexels-photo-1045541.jpeg",
+  "https://images.pexels.com/photos/169198/pexels-photo-169198.jpeg",
+  "https://images.pexels.com/photos/587741/pexels-photo-587741.jpeg",
+  "https://images.pexels.com/photos/7802432/pexels-photo-7802432.jpeg",
+  "https://images.pexels.com/photos/433452/pexels-photo-433452.jpeg",
+  "https://images.pexels.com/photos/417458/pexels-photo-417458.jpeg"
+];
+
 export const Hero: React.FC = () => {
+  const bgImage = useMemo(() => {
+    return HERO_IMAGES[Math.floor(Math.random() * HERO_IMAGES.length)];
+  }, []);
+
   return (
     <div className="relative h-screen w-full overflow-hidden flex items-center justify-center">
       {/* Background with Parallax effect simulation via fixed position */}
       <div 
-        className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat bg-fixed"
-        style={{ backgroundImage: 'url("https://picsum.photos/id/190/1920/1080")' }} 
+        className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat bg-fixed transition-opacity duration-1000"
+        style={{ backgroundImage: `url("${bgImage}")` }} 
       >
         <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"></div>
       </div>

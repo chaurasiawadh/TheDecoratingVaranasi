@@ -16,12 +16,27 @@ export interface Package {
   includes: string[];
 }
 
+export interface ProductItem {
+  id: string;
+  serviceId: string;
+  name: string;
+  image: string;
+  price: number;
+  oldPrice: number;
+  discount: number; // percentage
+  shortDescription: string;
+  fullDescription: string;
+  tags: string[]; // e.g., "bestseller", "outdoor", "premium"
+  rating: number;
+  reviews: number;
+}
+
 export interface BookingFormData {
   fullName: string;
   phone: string;
   email: string;
   serviceId: string;
-  packageId?: string;
+  packageId?: string; // Can map to ProductItem.id now as well
   date: string;
   time: string;
   address: string;
