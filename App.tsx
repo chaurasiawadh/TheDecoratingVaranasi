@@ -8,7 +8,7 @@ import { ServiceDetail } from './components/ServiceDetail';
 import { Admin } from './components/Admin';
 import { Gallery } from './components/Gallery';
 import { Contact } from './components/Contact';
-import { LOGO_URL_2, APP_NAME } from './constants';
+import { LOGO_URL, APP_NAME } from './constants';
 import { CapturedMoments } from './components/CapturedMoments';
 import { TestimonialModal } from './components/TestimonialModal';
 import { motion } from 'framer-motion';
@@ -31,7 +31,7 @@ const Footer = () => (
     <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-12">
       <div className="col-span-1 md:col-span-2">
         <img
-          src={LOGO_URL_2}
+          src={LOGO_URL}
           alt={APP_NAME}
           className="h-12 w-auto object-contain mb-6 rounded-lg bg-white/10"
         />
