@@ -1,22 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Calendar, CheckCircle, Smartphone, AlertCircle } from 'lucide-react';
+import { X, Calendar, CheckCircle, Smartphone, AlertCircle, MapPin } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { Service, Package, BookingFormData } from '../types';
-import { SERVICES, PACKAGES, PHONE_NUMBER } from '../constants';
+import { PACKAGES, PHONE_NUMBER } from '../constants';
 import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useData } from '../contexts/DataContext';
 
 export const BookingModal: React.FC = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const initialServiceId = searchParams.get('service');
+  const initialPackageId = searchParams.get('package');
+  
+  // Use Data Context for full product list and services
+  const { services, products } = useData();
 
   const [formData, setFormData] = useState<BookingFormData>({
     fullName: '',
     phone: '',
     email: '',
-    serviceId: initialServiceId || SERVICES[0].id,
-    packageId: '',
+    serviceId: initialServiceId || (services[0]?.id || 'birthday'),
+    packageId: initialPackageId || '',
     date: '',
     time: '',
     address: '',
@@ -27,13 +32,17 @@ export const BookingModal: React.FC = () => {
   const [errors, setErrors] = useState<Partial<Record<keyof BookingFormData, string>>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [gettingLocation, setGettingLocation] = useState(false);
 
   // Update formData when URL param changes
   useEffect(() => {
     if (initialServiceId) {
       setFormData(prev => ({ ...prev, serviceId: initialServiceId }));
     }
-  }, [initialServiceId]);
+    if (initialPackageId) {
+      setFormData(prev => ({ ...prev, packageId: initialPackageId }));
+    }
+  }, [initialServiceId, initialPackageId]);
 
   const validateForm = () => {
     const newErrors: Partial<Record<keyof BookingFormData, string>> = {};
@@ -83,7 +92,6 @@ export const BookingModal: React.FC = () => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
     
-    // Clear error for specific field on change
     if (errors[name as keyof BookingFormData]) {
       setErrors(prev => ({ ...prev, [name]: undefined }));
     }
@@ -93,57 +101,82 @@ export const BookingModal: React.FC = () => {
     setFormData({ ...formData, serviceId: e.target.value, packageId: '' });
   };
 
+  // Lookup Logic
   const filteredPackages = PACKAGES.filter(p => p.serviceId === formData.serviceId);
-  const selectedService = SERVICES.find(s => s.id === formData.serviceId);
+  const selectedService = services.find(s => s.id === formData.serviceId);
+  
+  // Try to find the selected item in the products list (dynamic) first, then fallback to PACKAGES (static)
+  const selectedProduct = products.find(p => p.id === formData.packageId);
   const selectedPackage = PACKAGES.find(p => p.id === formData.packageId);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!validateForm()) {
-      // Shake animation or scroll to top could be added here
-      return;
-    }
+    if (!validateForm()) return;
 
     setIsSubmitting(true);
+    setGettingLocation(true);
 
-    // Simulate validation/api call
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setSuccess(true);
-      confetti({
+    // 1. Fetch Location
+    let locationString = "Location: Not shared by user";
+    try {
+        const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, reject, { 
+                timeout: 8000,
+                enableHighAccuracy: true 
+            });
+        });
+        const { latitude, longitude } = position.coords;
+        locationString = `Google Maps Location:\nhttps://www.google.com/maps?q=${latitude},${longitude}`;
+    } catch (error) {
+        console.log("Location access denied or timed out", error);
+    } finally {
+        setGettingLocation(false);
+    }
+
+    // 2. Prepare Data
+    const finalItemName = selectedProduct?.name || selectedPackage?.name || "Custom / Not Selected";
+    const finalPrice = selectedProduct 
+        ? `₹${selectedProduct.price.toLocaleString()}` 
+        : (selectedPackage ? `₹${selectedPackage.price.toLocaleString()}` : "Contact for pricing");
+
+    // 3. Construct Message
+    const msg = `
+New Booking - TheDecoratingVaranasi
+
+Service: ${selectedService?.title || 'General Inquiry'}
+
+Product Details:
+Product Name: ${finalItemName}
+Price: ${finalPrice}
+
+Customer Details:
+Name: ${formData.fullName}
+Phone: ${formData.phone}
+Preferred Date: ${formData.date}
+Address: ${formData.address}
+
+${locationString}
+
+Additional Notes:
+${formData.message || 'None'}
+`.trim();
+
+    // 4. Success Animation
+    setSuccess(true);
+    confetti({
         particleCount: 150,
         spread: 70,
         origin: { y: 0.6 },
         colors: ['#7c3aed', '#fbbf24', '#ffffff']
-      });
-      
-      // WhatsApp Logic
-      const msg = `
-*New Booking — TheDecoratingVaranasi* ✨
---------------------------------
-👤 *Name:* ${formData.fullName}
-📞 *Phone:* +91 ${formData.phone}
-📧 *Email:* ${formData.email || 'N/A'}
-🎉 *Service:* ${selectedService?.title}
-📦 *Package:* ${selectedPackage ? `${selectedPackage.name} (₹${selectedPackage.price})` : 'Custom / Not Selected'}
-📅 *Date:* ${formData.date}
-⏰ *Time:* ${formData.time || 'Flexible'}
-📍 *Venue:* ${formData.address}
-👥 *Guests:* ${formData.guests}
-📝 *Note:* ${formData.message || 'None'}
---------------------------------
-Source: Website
-      `.trim();
+    });
 
-      const whatsappUrl = `https://wa.me/${PHONE_NUMBER}?text=${encodeURIComponent(msg)}`;
-      
-      // Open in new tab after a slight delay to show success animation
-      setTimeout(() => {
+    // 5. Open WhatsApp
+    const whatsappUrl = `https://wa.me/${PHONE_NUMBER}?text=${encodeURIComponent(msg)}`;
+    setTimeout(() => {
         window.open(whatsappUrl, '_blank');
-      }, 1500);
-
-    }, 1000);
+        setIsSubmitting(false);
+    }, 1500);
   };
 
   const close = () => navigate(-1);
@@ -160,9 +193,9 @@ Source: Website
           <div className="mx-auto w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mb-6 text-green-600">
             <CheckCircle className="w-10 h-10" />
           </div>
-          <h2 className="text-2xl font-serif font-bold text-gray-900 mb-2">Booking Initiated!</h2>
+          <h2 className="text-2xl font-serif font-bold text-gray-900 mb-2">Order Initiated!</h2>
           <p className="text-gray-600 mb-6">
-            We are redirecting you to WhatsApp to finalize details with our team.
+            Opening WhatsApp with your order details and location...
           </p>
           <button onClick={close} className="w-full bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-3 rounded-xl transition-colors">
             Close
@@ -172,7 +205,6 @@ Source: Website
     );
   }
 
-  // Helper for input styling based on error state
   const getInputClass = (fieldName: keyof BookingFormData) => `
     w-full p-3 bg-gray-50 rounded-lg border outline-none transition-all
     ${errors[fieldName] 
@@ -196,24 +228,38 @@ Source: Website
         <div className="w-full md:w-1/3 bg-gray-50 p-6 md:p-8 flex flex-col justify-between border-r border-gray-100">
           <div>
             <h3 className="text-lg font-bold text-gray-400 uppercase tracking-wide mb-6">Summary</h3>
-            {selectedService && (
+            
+            {/* 1. Show Selected Product (Priority) */}
+            {selectedProduct ? (
+                <div className="bg-white p-4 rounded-xl border border-primary/20 shadow-sm mb-6">
+                    <span className="text-xs font-bold text-secondary uppercase">Selected Item</span>
+                    <div className="font-bold text-gray-800 text-lg leading-tight mb-1">{selectedProduct.name}</div>
+                    <div className="text-primary font-bold text-xl">₹{selectedProduct.price.toLocaleString()}</div>
+                    {selectedProduct.image && <img src={selectedProduct.image} className="w-full h-32 object-cover rounded-lg mt-3" alt="product" />}
+                </div>
+            ) : selectedPackage ? (
+                /* 2. Fallback to Selected Package */
+                <div className="bg-white p-4 rounded-xl border border-primary/20 shadow-sm mb-6">
+                    <span className="text-xs font-bold text-secondary uppercase">Selected Package</span>
+                    <div className="font-bold text-gray-800">{selectedPackage.name}</div>
+                    <div className="text-primary font-bold">₹{selectedPackage.price.toLocaleString()}</div>
+                </div>
+            ) : selectedService ? (
+                 /* 3. Fallback to Service Info */
                 <div className="mb-6">
                     <img src={selectedService.image} alt="Service" className="w-full h-32 object-cover rounded-lg mb-4 shadow-md" />
                     <h4 className="font-serif text-xl font-bold text-primary">{selectedService.title}</h4>
                     <p className="text-sm text-gray-500">Starting @ ₹{selectedService.priceStart}</p>
                 </div>
-            )}
-            
-            {selectedPackage && (
-                <div className="bg-white p-4 rounded-xl border border-primary/20 shadow-sm">
-                    <span className="text-xs font-bold text-secondary uppercase">Selected Package</span>
-                    <div className="font-bold text-gray-800">{selectedPackage.name}</div>
-                    <div className="text-primary font-bold">₹{selectedPackage.price.toLocaleString()}</div>
-                </div>
-            )}
+            ) : null}
+
           </div>
           
-          <div className="mt-8">
+          <div className="mt-8 space-y-3">
+             <div className="flex items-center gap-2 text-sm text-gray-500 bg-blue-50 p-3 rounded-lg border border-blue-100">
+                <MapPin className="w-4 h-4 text-blue-500" />
+                <span className="text-xs">Location will be attached to order</span>
+            </div>
             <div className="flex items-center gap-2 text-sm text-gray-500">
                 <Smartphone className="w-4 h-4" />
                 <span>Booking handled via WhatsApp</span>
@@ -223,7 +269,7 @@ Source: Website
 
         {/* Right Side - Form */}
         <div className="w-full md:w-2/3 p-6 md:p-8">
-          <h2 className="text-3xl font-serif font-bold text-gray-900 mb-6">Plan Your Celebration</h2>
+          <h2 className="text-3xl font-serif font-bold text-gray-900 mb-6">Complete Booking</h2>
           
           <form onSubmit={handleSubmit} className="space-y-4" noValidate>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -251,7 +297,7 @@ Source: Website
                         value={formData.phone} 
                         onChange={handleChange}
                         className={getInputClass('phone')}
-                        placeholder="9250333876"
+                        placeholder="9936169852"
                         maxLength={10}
                     />
                     {errors.phone && <p className="text-red-500 text-xs mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3"/> {errors.phone}</p>}
@@ -273,6 +319,7 @@ Source: Website
                 {errors.email && <p className="text-red-500 text-xs mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3"/> {errors.email}</p>}
             </div>
 
+            {/* Service & Package Selection - Hidden if specific product already selected to keep UI clean, or read-only */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1">
                     <label className="text-xs font-bold text-gray-500 uppercase">Service Type</label>
@@ -281,22 +328,29 @@ Source: Website
                         value={formData.serviceId} 
                         onChange={handleServiceChange}
                         className={getInputClass('serviceId')}
+                        // If a product is selected via URL, we might want to disable this or warn user
+                        disabled={!!initialPackageId}
                     >
-                        {SERVICES.map(s => <option key={s.id} value={s.id}>{s.title}</option>)}
+                        {services.map(s => <option key={s.id} value={s.id}>{s.title}</option>)}
                     </select>
-                    {errors.serviceId && <p className="text-red-500 text-xs mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3"/> {errors.serviceId}</p>}
                 </div>
                  <div className="space-y-1">
-                    <label className="text-xs font-bold text-gray-500 uppercase">Package (Optional)</label>
-                    <select 
-                        name="packageId" 
-                        value={formData.packageId} 
-                        onChange={handleChange}
-                        className="w-full p-3 bg-gray-50 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
-                    >
-                        <option value="">Select a package</option>
-                        {filteredPackages.map(p => <option key={p.id} value={p.id}>{p.name} - ₹{p.price}</option>)}
-                    </select>
+                    <label className="text-xs font-bold text-gray-500 uppercase">Package / Item</label>
+                    {selectedProduct ? (
+                         <div className="w-full p-3 bg-gray-100 rounded-lg border border-gray-200 text-gray-600 truncate">
+                            {selectedProduct.name}
+                         </div>
+                    ) : (
+                        <select 
+                            name="packageId" 
+                            value={formData.packageId} 
+                            onChange={handleChange}
+                            className="w-full p-3 bg-gray-50 rounded-lg border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                        >
+                            <option value="">Select a package (Optional)</option>
+                            {filteredPackages.map(p => <option key={p.id} value={p.id}>{p.name} - ₹{p.price}</option>)}
+                        </select>
+                    )}
                 </div>
             </div>
 
@@ -367,15 +421,17 @@ Source: Website
                     className="w-full bg-primary hover:bg-purple-700 text-white font-bold py-4 rounded-xl shadow-lg hover:shadow-xl transform active:scale-95 transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
                 >
                     {isSubmitting ? (
-                        <span className="animate-pulse">Processing...</span>
+                        <span className="flex items-center gap-2">
+                           {gettingLocation ? "Fetching Location..." : "Opening WhatsApp..."}
+                        </span>
                     ) : (
                         <>
-                            Confirm Booking via WhatsApp <Smartphone className="w-5 h-5" />
+                            Book via WhatsApp <Smartphone className="w-5 h-5" />
                         </>
                     )}
                 </button>
                 <p className="text-center text-xs text-gray-400 mt-3">
-                    No payment required now. You will chat with our agent.
+                    Clicking "Book" will request your location to help us find you easily.
                 </p>
             </div>
           </form>

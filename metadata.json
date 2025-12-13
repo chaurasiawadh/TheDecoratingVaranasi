@@ -1,5 +1,7 @@
 {
   "name": "TheDecoratingVaranasi",
   "description": "Premium, emotion-driven decoration and gifting services in Varanasi. Specializing in birthdays, weddings, and anniversaries with seamless WhatsApp booking.",
-  "requestFramePermissions": []
+  "requestFramePermissions": [
+    "geolocation"
+  ]
 }
