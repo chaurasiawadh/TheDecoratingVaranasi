@@ -10,6 +10,7 @@ import { Gallery } from './components/Gallery';
 import { Contact } from './components/Contact';
 import { TESTIMONIALS, LOGO_URL, APP_NAME } from './constants';
 import { CapturedMoments } from './components/CapturedMoments';
+import { TestimonialModal } from './components/TestimonialModal';
 import { motion } from 'framer-motion';
 import { Phone, Mail, MapPin, Instagram, Facebook } from 'lucide-react';
 import { DataProvider, useData } from './contexts/DataContext';
@@ -85,6 +86,7 @@ const Footer = () => (
 
 const Home = () => {
   const { services, testimonials, loading } = useData();
+  const [selectedTestimonial, setSelectedTestimonial] = React.useState<any>(null);
 
   if (loading && services.length === 0) {
     return <div className="min-h-screen flex items-center justify-center text-primary">Loading amazing things...</div>;
@@ -149,26 +151,33 @@ const Home = () => {
         <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
         <div className="max-w-7xl mx-auto relative z-10">
           <h2 className="text-3xl md:text-4xl font-serif font-bold text-white text-center mb-12">Client Love</h2>
-          <div className="flex flex-wrap justify-center gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {testimonials.map((t) => (
               <motion.div
                 key={t.id}
-                whileHover={{ scale: 1.05 }}
-                className="bg-white/10 backdrop-blur-md p-6 rounded-2xl max-w-sm border border-white/10"
+                whileHover={{ y: -5 }}
+                className="bg-white/10 backdrop-blur-md p-6 rounded-2xl border border-white/10 cursor-pointer h-full hover:bg-white/15 transition-colors"
+                onClick={() => setSelectedTestimonial(t)}
               >
                 <div className="flex items-center gap-4 mb-4">
-                  <img src={t.image} alt={t.name} className="w-12 h-12 rounded-full border-2 border-secondary" />
+                  <img src={t.image} alt={t.name} className="w-12 h-12 rounded-full border-2 border-secondary object-cover" />
                   <div>
                     <h4 className="text-white font-bold">{t.name}</h4>
                     <div className="flex text-secondary text-xs">{'★'.repeat(t.rating)}</div>
                   </div>
                 </div>
-                <p className="text-gray-300 italic">"{t.comment}"</p>
+                <p className="text-gray-300 italic line-clamp-4">"{t.comment}"</p>
+                <div className="mt-4 text-xs font-bold text-secondary uppercase tracking-wider opacity-0 group-hover:opacity-100 transition-opacity">Read Full Review</div>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
+
+      <TestimonialModal
+        testimonial={selectedTestimonial}
+        onClose={() => setSelectedTestimonial(null)}
+      />
     </>
   );
 };
