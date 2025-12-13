@@ -28,10 +28,9 @@ export const Header: React.FC = () => {
   // On Home: Transparent at top, White when scrolled.
   // Other pages: Always White.
   const isTransparent = isHomePage && !scrolled;
-  
-  const navClasses = `fixed w-full z-50 transition-all duration-500 ease-in-out ${
-    isTransparent ? 'bg-transparent py-4' : 'bg-white/95 backdrop-blur-md shadow-md py-2'
-  }`;
+
+  const navClasses = `fixed w-full z-50 transition-all duration-500 ease-in-out ${isTransparent ? 'bg-transparent py-4' : 'bg-white/95 backdrop-blur-md shadow-md py-2'
+    }`;
 
   const textColorClass = isTransparent ? 'text-white' : 'text-gray-800';
   const iconColorClass = isTransparent ? 'text-white' : 'text-gray-600';
@@ -44,31 +43,30 @@ export const Header: React.FC = () => {
           {/* Left Section: Logo + Back Button */}
           <div className="flex items-center gap-4">
             <Link to="/" className="flex-shrink-0 flex items-center gap-2 group">
-                <img 
-                src={LOGO_URL} 
-                alt={APP_NAME} 
-                className={`w-auto object-contain rounded-sm transition-all duration-500 ease-in-out ${
-                    scrolled ? 'h-8' : 'h-10 md:h-12'
-                }`}
-                />
+              <img
+                src={LOGO_URL}
+                alt={APP_NAME}
+                className={`w-auto object-contain rounded-sm transition-all duration-500 ease-in-out ${scrolled ? 'h-8' : 'h-10 md:h-12'
+                  }`}
+              />
             </Link>
 
             <AnimatePresence>
-                {scrolled && !isHomePage && (
-                    <motion.div
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: -10 }}
-                        className="hidden md:block"
-                    >
-                        <Link 
-                            to="/" 
-                            className="flex items-center gap-1.5 text-xs font-bold text-gray-600 bg-gray-100 hover:bg-primary hover:text-white px-3 py-1.5 rounded-full transition-all"
-                        >
-                            <ArrowLeft className="w-3 h-3" /> Back to Home
-                        </Link>
-                    </motion.div>
-                )}
+              {scrolled && !isHomePage && (
+                <motion.div
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -10 }}
+                  className="hidden md:block"
+                >
+                  <Link
+                    to="/"
+                    className="flex items-center gap-1.5 text-xs font-bold text-gray-600 bg-gray-100 hover:bg-primary hover:text-white px-3 py-1.5 rounded-full transition-all"
+                  >
+                    <ArrowLeft className="w-3 h-3" /> Back to Home
+                  </Link>
+                </motion.div>
+              )}
             </AnimatePresence>
           </div>
 
@@ -84,15 +82,7 @@ export const Header: React.FC = () => {
                 <span className={`absolute -bottom-1 left-0 w-0 h-0.5 transition-all duration-300 ease-out group-hover:w-full ${underlineColorClass}`}></span>
               </Link>
             ))}
-            
-            <div className={`flex items-center space-x-4 ${iconColorClass}`}>
-               <Search className="w-5 h-5 cursor-pointer hover:text-secondary transition-colors" />
-               <Heart className="w-5 h-5 cursor-pointer hover:text-secondary transition-colors" />
-               <Link to="/booking" className="relative group">
-                 <ShoppingBag className="w-5 h-5 cursor-pointer hover:text-secondary transition-colors" />
-               </Link>
-            </div>
-            
+
             <Link to="/booking">
               <button className="bg-gradient-to-r from-primary to-purple-600 text-white px-6 py-2 rounded-full text-sm font-bold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300">
                 Book Now
@@ -102,21 +92,21 @@ export const Header: React.FC = () => {
 
           {/* Mobile menu button & Back Link */}
           <div className="md:hidden flex items-center gap-3">
-             <AnimatePresence>
-                {scrolled && !isHomePage && (
-                    <motion.div
-                        initial={{ opacity: 0, x: 10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: 10 }}
-                    >
-                         <Link 
-                            to="/" 
-                            className="flex items-center gap-1 text-xs font-bold text-gray-600 bg-gray-100 px-3 py-1.5 rounded-full"
-                        >
-                            <ArrowLeft className="w-3 h-3" /> Home
-                        </Link>
-                    </motion.div>
-                )}
+            <AnimatePresence>
+              {scrolled && !isHomePage && (
+                <motion.div
+                  initial={{ opacity: 0, x: 10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 10 }}
+                >
+                  <Link
+                    to="/"
+                    className="flex items-center gap-1 text-xs font-bold text-gray-600 bg-gray-100 px-3 py-1.5 rounded-full"
+                  >
+                    <ArrowLeft className="w-3 h-3" /> Home
+                  </Link>
+                </motion.div>
+              )}
             </AnimatePresence>
             <button
               onClick={() => setIsOpen(!isOpen)}
