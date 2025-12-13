@@ -82,15 +82,25 @@ export const ClientLoveAdmin: React.FC<ClientLoveAdminProps> = ({ onBack, onSucc
         }
     };
 
+    // Delete State to show spinner on specific item
+    const [deletingId, setDeletingId] = useState<string | null>(null);
+    const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+
     const handleDelete = async (id: string) => {
-        if (window.confirm('Are you sure you want to delete this testimonial?')) {
-            try {
-                await deleteDoc(doc(db, 'testimonials', id));
-                await refreshData();
-            } catch (error) {
-                console.error(error);
-                alert('Failed to delete.');
-            }
+        console.log('Deleting testimonial:', id);
+        setDeletingId(id);
+        setConfirmDeleteId(null);
+
+        try {
+            await deleteDoc(doc(db, 'testimonials', id));
+            console.log('Document deleted, refreshing data...');
+            await refreshData();
+            console.log('Data refreshed.');
+        } catch (error) {
+            console.error('Error deleting testimonial:', error);
+            alert('Failed to delete. Check console for details.');
+        } finally {
+            setDeletingId(null);
         }
     };
 
@@ -190,16 +200,16 @@ export const ClientLoveAdmin: React.FC<ClientLoveAdminProps> = ({ onBack, onSucc
 
                 {/* List Section */}
                 <div>
-                    <div className="bg-white rounded-xl border shadow-sm overflow-hidden">
+                    <div className="bg-white rounded-xl border shadow-sm overflow-hidden h-full flex flex-col">
                         <div className="p-4 border-b bg-gray-50 font-bold text-gray-700">
                             Recent Reviews ({testimonials.length})
                         </div>
-                        <div className="divide-y max-h-[600px] overflow-y-auto">
+                        <div className="divide-y overflow-y-auto flex-grow" style={{ maxHeight: '600px' }}>
                             {testimonials.length === 0 ? (
                                 <div className="p-8 text-center text-gray-500">No testimonials yet.</div>
                             ) : (
                                 testimonials.map(t => (
-                                    <div key={t.id} className="p-4 flex gap-4 hover:bg-gray-50 transition-colors group">
+                                    <div key={t.id} className="p-4 flex gap-4 hover:bg-gray-50 transition-colors group relative">
                                         <img
                                             src={t.image}
                                             alt={t.name}
@@ -208,13 +218,45 @@ export const ClientLoveAdmin: React.FC<ClientLoveAdminProps> = ({ onBack, onSucc
                                         <div className="flex-grow">
                                             <div className="flex justify-between items-start">
                                                 <h4 className="font-bold text-gray-900">{t.name}</h4>
-                                                <button
-                                                    onClick={() => handleDelete(t.id)}
-                                                    className="text-gray-400 hover:text-red-500 p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                                                    title="Delete"
-                                                >
-                                                    <Trash2 className="w-4 h-4" />
-                                                </button>
+
+                                                <div className="relative">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setConfirmDeleteId(confirmDeleteId === t.id ? null : t.id)}
+                                                        className={`text-gray-400 hover:text-red-500 p-1 transition-opacity disabled:opacity-50 ${confirmDeleteId === t.id ? 'opacity-100 text-red-500' : 'opacity-0 group-hover:opacity-100'}`}
+                                                        title="Delete"
+                                                        disabled={deletingId === t.id}
+                                                    >
+                                                        {deletingId === t.id ? (
+                                                            <Loader2 className="w-4 h-4 animate-spin text-red-500" />
+                                                        ) : (
+                                                            <Trash2 className="w-4 h-4" />
+                                                        )}
+                                                    </button>
+
+                                                    {/* Confirmation Popover */}
+                                                    {confirmDeleteId === t.id && (
+                                                        <div className="absolute right-0 top-8 z-10 bg-white shadow-xl border border-gray-200 rounded-lg p-3 w-48 text-center animate-in fade-in zoom-in duration-200">
+                                                            <p className="text-xs font-semibold text-gray-700 mb-3">Delete this review?</p>
+                                                            <div className="flex gap-2 justify-center">
+                                                                <button
+                                                                    onClick={() => setConfirmDeleteId(null)}
+                                                                    className="px-3 py-1.5 text-xs font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
+                                                                >
+                                                                    Cancel
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => handleDelete(t.id)}
+                                                                    className="px-3 py-1.5 text-xs font-bold text-white bg-red-500 hover:bg-red-600 rounded-md transition-colors"
+                                                                >
+                                                                    Delete
+                                                                </button>
+                                                            </div>
+                                                            {/* Arrow */}
+                                                            <div className="absolute -top-1.5 right-2 w-3 h-3 bg-white border-t border-l border-gray-200 transform rotate-45"></div>
+                                                        </div>
+                                                    )}
+                                                </div>
                                             </div>
                                             <div className="flex text-yellow-500 text-xs mb-1">
                                                 {'★'.repeat(Math.round(t.rating))}
