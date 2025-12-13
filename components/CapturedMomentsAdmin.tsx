@@ -79,15 +79,23 @@ export const CapturedMomentsAdmin: React.FC<CapturedMomentsAdminProps> = ({ onBa
         }
     };
 
+    // Delete State
+    const [deletingId, setDeletingId] = useState<string | null>(null);
+    const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+
     const handleDelete = async (id: string) => {
-        if (window.confirm('Are you sure you want to delete this moment?')) {
-            try {
-                await deleteDoc(doc(db, 'captured_moments', id));
-                await refreshData();
-            } catch (error) {
-                console.error(error);
-                alert('Failed to delete.');
-            }
+        console.log('Deleting moment:', id);
+        setDeletingId(id);
+        setConfirmDeleteId(null);
+
+        try {
+            await deleteDoc(doc(db, 'captured_moments', id));
+            await refreshData();
+        } catch (error) {
+            console.error(error);
+            alert('Failed to delete.');
+        } finally {
+            setDeletingId(null);
         }
     };
 
@@ -206,13 +214,44 @@ export const CapturedMomentsAdmin: React.FC<CapturedMomentsAdminProps> = ({ onBa
                                                 {moment.type}
                                             </span>
                                         </div>
-                                        <button
-                                            onClick={() => handleDelete(moment.id)}
-                                            className="text-gray-400 hover:text-red-500 p-2 opacity-0 group-hover:opacity-100 transition-opacity"
-                                            title="Delete"
-                                        >
-                                            <Trash2 className="w-5 h-5" />
-                                        </button>
+                                        <div className="relative">
+                                            <button
+                                                type="button"
+                                                onClick={() => setConfirmDeleteId(confirmDeleteId === moment.id ? null : moment.id)}
+                                                className={`text-gray-400 hover:text-red-500 p-2 transition-opacity disabled:opacity-50 ${confirmDeleteId === moment.id ? 'opacity-100 text-red-500' : 'opacity-0 group-hover:opacity-100'}`}
+                                                title="Delete"
+                                                disabled={deletingId === moment.id}
+                                            >
+                                                {deletingId === moment.id ? (
+                                                    <Loader2 className="w-5 h-5 animate-spin text-red-500" />
+                                                ) : (
+                                                    <Trash2 className="w-5 h-5" />
+                                                )}
+                                            </button>
+
+                                            {/* Confirmation Popover */}
+                                            {confirmDeleteId === moment.id && (
+                                                <div className="absolute right-0 top-10 z-10 bg-white shadow-xl border border-gray-200 rounded-lg p-3 w-48 text-center animate-in fade-in zoom-in duration-200">
+                                                    <p className="text-xs font-semibold text-gray-700 mb-3">Delete this moment?</p>
+                                                    <div className="flex gap-2 justify-center">
+                                                        <button
+                                                            onClick={() => setConfirmDeleteId(null)}
+                                                            className="px-3 py-1.5 text-xs font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
+                                                        >
+                                                            Cancel
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleDelete(moment.id)}
+                                                            className="px-3 py-1.5 text-xs font-bold text-white bg-red-500 hover:bg-red-600 rounded-md transition-colors"
+                                                        >
+                                                            Delete
+                                                        </button>
+                                                    </div>
+                                                    {/* Arrow */}
+                                                    <div className="absolute -top-1.5 right-3 w-3 h-3 bg-white border-t border-l border-gray-200 transform rotate-45"></div>
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
                                 ))
                             )}
