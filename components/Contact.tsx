@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Phone, Mail, MapPin, Send, Instagram, Facebook, Smartphone, CheckCircle } from 'lucide-react';
+import { Phone, Mail, MapPin, Send, Instagram, Facebook, Smartphone, CheckCircle, Code } from 'lucide-react';
 import { PHONE_NUMBER } from '../constants';
 import confetti from 'canvas-confetti';
 
@@ -120,6 +120,21 @@ Message: ${formData.message}
                                         Brahmanand Colony, Durgakund,<br />
                                         Varanasi, Uttar Pradesh 221005
                                     </p>
+                                </div>
+                            </div>
+
+                            <div className="flex items-start gap-4">
+                                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 text-blue-600">
+                                    <Code className="w-6 h-6" />
+                                </div>
+                                <div>
+                                    <h3 className="font-bold text-gray-900 text-lg">Website Developer</h3>
+                                    <p className="text-gray-900 font-bold text-lg">Awadhesh Chaurasia</p>
+                                    <div className="flex flex-col text-gray-500">
+                                        <a href="tel:+919936169852" className="hover:text-primary transition-colors">+91 99361 69852</a>
+                                        <a href="mailto:chaurasiawadh@gmail.com" className="hover:text-primary transition-colors">chaurasiawadh@gmail.com</a>
+                                        <a href="https://www.linkedin.com/in/chaurasiawadh/" target="_blank" rel="noopener noreferrer" className="text-primary font-bold hover:underline">LinkedIn Profile</a>
+                                    </div>
                                 </div>
                             </div>
                         </div>
