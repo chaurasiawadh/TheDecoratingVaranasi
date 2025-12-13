@@ -3,7 +3,7 @@ import { signInWithEmailAndPassword, signOut, onAuthStateChanged, User } from 'f
 import { collection, doc, setDoc, addDoc, serverTimestamp, getDocs } from 'firebase/firestore';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { auth, db, storage } from '../firebase-config';
-import { Lock, LogOut, Plus, Image as ImageIcon, Save, Loader2, ArrowLeft, Edit } from 'lucide-react';
+import { Lock, LogOut, Plus, Image as ImageIcon, Save, Loader2, ArrowLeft, Edit, Check } from 'lucide-react';
 import { useData } from '../contexts/DataContext';
 import { Link } from 'react-router-dom';
 
@@ -297,6 +297,8 @@ const ServiceForm = ({ serviceId, onBack, onSuccess, onManageItems }: any) => {
   );
 };
 
+const AVAILABLE_TAGS = ['bestseller', 'new', 'premium', 'same-day', 'budget'];
+
 const ItemManager = ({ serviceId, onBack, onSuccess }: any) => {
     const { products } = useData();
     const serviceItems = products.filter((p: any) => p.serviceId === serviceId);
@@ -310,7 +312,7 @@ const ItemManager = ({ serviceId, onBack, onSuccess }: any) => {
         oldPrice: 0,
         shortDesc: '',
         fullDesc: '',
-        tags: '',
+        tags: [] as string[],
         stock: 10
     });
     const [imageFile, setImageFile] = useState<File | null>(null);
@@ -327,14 +329,23 @@ const ItemManager = ({ serviceId, onBack, onSuccess }: any) => {
                 oldPrice: editingItem.oldPrice,
                 shortDesc: editingItem.shortDescription,
                 fullDesc: editingItem.fullDescription,
-                tags: editingItem.tags.join(', '),
+                tags: editingItem.tags || [],
                 stock: editingItem.stockQty || 10
             });
         } else {
             // Reset for new item
-            setFormData({ name: '', id: '', price: 0, oldPrice: 0, shortDesc: '', fullDesc: '', tags: '', stock: 10 });
+            setFormData({ name: '', id: '', price: 0, oldPrice: 0, shortDesc: '', fullDesc: '', tags: [], stock: 10 });
         }
     }, [editingItem]);
+
+    const toggleTag = (tag: string) => {
+        setFormData(prev => {
+            const newTags = prev.tags.includes(tag) 
+                ? prev.tags.filter(t => t !== tag) 
+                : [...prev.tags, tag];
+            return { ...prev, tags: newTags };
+        });
+    };
 
     const handleSaveItem = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -376,7 +387,7 @@ const ItemManager = ({ serviceId, onBack, onSuccess }: any) => {
                 discountText: discountPercent > 0 ? `${discountPercent}% OFF` : null,
                 shortDescription: formData.shortDesc,
                 fullDescription: formData.fullDesc,
-                tags: formData.tags.split(',').map(t => t.trim()).filter(Boolean),
+                tags: formData.tags, // Array directly
                 stockQty: Number(formData.stock),
                 updatedAt: serverTimestamp(),
                 createdAt: editingItem?.createdAt || serverTimestamp(),
@@ -443,8 +454,25 @@ const ItemManager = ({ serviceId, onBack, onSuccess }: any) => {
                         </div>
 
                         <div>
-                            <label className="block text-sm font-bold text-gray-700 mb-1">Tags (comma separated)</label>
-                            <input className="w-full p-2 border rounded" value={formData.tags} onChange={e => setFormData({...formData, tags: e.target.value})} />
+                            <label className="block text-sm font-bold text-gray-700 mb-2">Tags</label>
+                            <div className="flex flex-wrap gap-2">
+                                {AVAILABLE_TAGS.map(tag => (
+                                    <button
+                                        key={tag}
+                                        type="button"
+                                        onClick={() => toggleTag(tag)}
+                                        className={`px-3 py-1 rounded-full text-sm font-bold border transition-colors flex items-center gap-1 ${
+                                            formData.tags.includes(tag) 
+                                            ? 'bg-primary text-white border-primary' 
+                                            : 'bg-white text-gray-600 border-gray-200 hover:border-gray-300'
+                                        }`}
+                                    >
+                                        {tag}
+                                        {formData.tags.includes(tag) && <Check className="w-3 h-3" />}
+                                    </button>
+                                ))}
+                            </div>
+                            <p className="text-xs text-gray-400 mt-1">Select one or more tags for this product.</p>
                         </div>
 
                          <div>

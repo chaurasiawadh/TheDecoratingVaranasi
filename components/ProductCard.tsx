@@ -34,11 +34,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }
         </motion.div>
       )}
 
-      {/* Wishlist Button */}
-      <button className="absolute top-3 right-3 z-20 bg-white/80 backdrop-blur-sm p-2 rounded-full text-gray-500 hover:text-red-500 hover:bg-white transition-colors shadow-sm">
-        <Heart className="w-4 h-4" />
-      </button>
-
       {/* Image Container */}
       <div className="relative aspect-[4/3] overflow-hidden bg-gray-100">
         <img 
