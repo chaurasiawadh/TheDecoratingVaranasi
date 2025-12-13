@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { X, Calendar, CheckCircle, Smartphone, AlertCircle, MapPin } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { X, Calendar, CheckCircle, AlertCircle, MapPin } from 'lucide-react';
 import confetti from 'canvas-confetti';
-import { Service, Package, BookingFormData } from '../types';
+import { BookingFormData } from '../types';
 import { PACKAGES, PHONE_NUMBER } from '../constants';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useData } from '../contexts/DataContext';
@@ -261,7 +261,6 @@ ${formData.message || 'None'}
               <span className="text-xs">Location will be attached to order</span>
             </div>
             <div className="flex items-center gap-2 text-sm text-gray-500">
-              <Smartphone className="w-4 h-4" />
               <span>Booking handled via WhatsApp</span>
             </div>
           </div>
@@ -426,7 +425,7 @@ ${formData.message || 'None'}
                   </span>
                 ) : (
                   <>
-                    Book via WhatsApp <Smartphone className="w-5 h-5" />
+                    Book via WhatsApp
                   </>
                 )}
               </button>

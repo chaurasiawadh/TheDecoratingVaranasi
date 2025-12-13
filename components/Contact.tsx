@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Phone, Mail, MapPin, Send, Instagram, Facebook, Smartphone, CheckCircle, Code } from 'lucide-react';
+import { Phone, Mail, MapPin, Send, Instagram, Facebook, CheckCircle, Code } from 'lucide-react';
 import { PHONE_NUMBER } from '../constants';
 import confetti from 'canvas-confetti';
 
@@ -235,7 +235,7 @@ Message: ${formData.message}
                                         'Opening WhatsApp...'
                                     ) : (
                                         <>
-                                            Send to WhatsApp <Smartphone className="w-5 h-5" />
+                                            Send to WhatsApp
                                         </>
                                     )}
                                 </button>
