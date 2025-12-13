@@ -3,10 +3,11 @@ import { signInWithEmailAndPassword, signOut, onAuthStateChanged, User } from 'f
 import { collection, doc, setDoc, addDoc, serverTimestamp, getDocs } from 'firebase/firestore';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { auth, db, storage } from '../firebase-config';
-import { Lock, LogOut, Plus, Image as ImageIcon, Save, Loader2, ArrowLeft, Edit, Check, Camera } from 'lucide-react';
+import { Lock, LogOut, Plus, Image as ImageIcon, Save, Loader2, ArrowLeft, Edit, Check, Camera, Heart } from 'lucide-react';
 import { useData } from '../contexts/DataContext';
 import { Link } from 'react-router-dom';
 import { CapturedMomentsAdmin } from './CapturedMomentsAdmin';
+import { ClientLoveAdmin } from './ClientLoveAdmin';
 
 export const Admin: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -18,7 +19,7 @@ export const Admin: React.FC = () => {
   // Data State
   const { services, refreshData } = useData();
   const [selectedServiceId, setSelectedServiceId] = useState<string | null>(null);
-  const [view, setView] = useState<'list' | 'service-form' | 'item-form' | 'moments'>('list');
+  const [view, setView] = useState<'list' | 'service-form' | 'item-form' | 'moments' | 'testimonials'>('list');
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -110,11 +111,19 @@ export const Admin: React.FC = () => {
             onAddService={() => { setSelectedServiceId(null); setView('service-form'); }}
             onEditService={(id) => { setSelectedServiceId(id); setView('service-form'); }}
             onManageMoments={() => setView('moments')}
+            onManageTestimonials={() => setView('testimonials')}
           />
         )}
 
         {view === 'moments' && (
           <CapturedMomentsAdmin
+            onBack={() => setView('list')}
+            onSuccess={() => { refreshData(); }}
+          />
+        )}
+
+        {view === 'testimonials' && (
+          <ClientLoveAdmin
             onBack={() => setView('list')}
             onSuccess={() => { refreshData(); }}
           />
@@ -141,7 +150,7 @@ export const Admin: React.FC = () => {
   );
 };
 
-const DashboardList = ({ services, onAddService, onEditService, onManageMoments }: any) => (
+const DashboardList = ({ services, onAddService, onEditService, onManageMoments, onManageTestimonials }: any) => (
   <div className="space-y-6">
     <div className="flex justify-between items-center">
       <h2 className="text-2xl font-bold text-gray-800">Services</h2>
@@ -157,6 +166,13 @@ const DashboardList = ({ services, onAddService, onEditService, onManageMoments 
           <Camera className="w-6 h-6" />
         </div>
         <span className="font-bold text-gray-800">Captured Moments</span>
+      </button>
+
+      <button onClick={onManageTestimonials} className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all flex flex-col items-center justify-center gap-3 group">
+        <div className="w-12 h-12 rounded-full bg-red-50 text-red-500 flex items-center justify-center group-hover:bg-red-500 group-hover:text-white transition-colors">
+          <Heart className="w-6 h-6" />
+        </div>
+        <span className="font-bold text-gray-800">Client Love</span>
       </button>
     </div>
 

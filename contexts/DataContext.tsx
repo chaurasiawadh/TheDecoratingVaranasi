@@ -2,12 +2,13 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { collection, getDocs, collectionGroup } from 'firebase/firestore';
 import { db } from '../firebase-config';
 import { SERVICES, ALL_PRODUCTS } from '../constants';
-import { Service, ProductItem, CapturedMoment } from '../types';
+import { Service, ProductItem, CapturedMoment, Testimonial } from '../types';
 
 interface DataContextType {
   services: Service[];
   products: ProductItem[];
   capturedMoments: CapturedMoment[];
+  testimonials: Testimonial[];
   loading: boolean;
   refreshData: () => Promise<void>;
 }
@@ -16,6 +17,7 @@ const DataContext = createContext<DataContextType>({
   services: SERVICES,
   products: ALL_PRODUCTS,
   capturedMoments: [],
+  testimonials: [],
   loading: false,
   refreshData: async () => { },
 });
@@ -26,6 +28,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [services, setServices] = useState<Service[]>(SERVICES);
   const [products, setProducts] = useState<ProductItem[]>(ALL_PRODUCTS);
   const [capturedMoments, setCapturedMoments] = useState<CapturedMoment[]>([]);
+  const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
   const [loading, setLoading] = useState(true);
 
   const refreshData = async () => {
@@ -77,6 +80,17 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         } as CapturedMoment));
         setCapturedMoments(fetchedMoments);
       }
+
+      // Fetch Testimonials
+      const testimonialsRef = collection(db, 'testimonials');
+      const testimonialsSnap = await getDocs(testimonialsRef);
+      if (!testimonialsSnap.empty) {
+        const fetchedTestimonials = testimonialsSnap.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        } as Testimonial));
+        setTestimonials(fetchedTestimonials);
+      }
     } catch (error: any) {
       // Handle permission errors (common in dev/new projects) gracefully
       if (error.code === 'permission-denied') {
@@ -95,7 +109,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   }, []);
 
   return (
-    <DataContext.Provider value={{ services, products, capturedMoments, loading, refreshData }}>
+    <DataContext.Provider value={{ services, products, capturedMoments, testimonials, loading, refreshData }}>
       {children}
     </DataContext.Provider>
   );

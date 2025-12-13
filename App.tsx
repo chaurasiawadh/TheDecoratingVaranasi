@@ -84,7 +84,7 @@ const Footer = () => (
 );
 
 const Home = () => {
-  const { services, loading } = useData();
+  const { services, testimonials, loading } = useData();
 
   if (loading && services.length === 0) {
     return <div className="min-h-screen flex items-center justify-center text-primary">Loading amazing things...</div>;
@@ -150,7 +150,7 @@ const Home = () => {
         <div className="max-w-7xl mx-auto relative z-10">
           <h2 className="text-3xl md:text-4xl font-serif font-bold text-white text-center mb-12">Client Love</h2>
           <div className="flex flex-wrap justify-center gap-8">
-            {TESTIMONIALS.map((t) => (
+            {testimonials.map((t) => (
               <motion.div
                 key={t.id}
                 whileHover={{ scale: 1.05 }}

@@ -72,7 +72,7 @@ export interface BookingFormData {
 }
 
 export interface Testimonial {
-  id: number;
+  id: string;
   name: string;
   comment: string;
   rating: number;
