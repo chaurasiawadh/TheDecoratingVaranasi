@@ -2,7 +2,8 @@ import { Service, Package, Testimonial, ProductItem } from './types';
 
 export const PHONE_NUMBER = "919936169852";
 export const APP_NAME = "TheDecoratingVaranasi";
-export const LOGO_URL = "https://thedecoratingvaranasi.com/wp-content/uploads/2025/10/cropped-cropped-WhatsApp-Image-2025-10-14-at-11.40.36-AM-300x108.jpeg";
+export const LOGO_URL = "/assets/logo.png";
+export const LOGO_URL_2 = "/assets/logo-2.png";
 
 export const SERVICES: Service[] = [
   {
@@ -61,7 +62,7 @@ const generateItems = (serviceId: string, baseName: string, keywords: string, co
     const price = Math.floor(Math.random() * (20000 - 1500 + 1) + 1500);
     const discount = Math.random() > 0.3 ? Math.floor(Math.random() * 20 + 5) : 0; // 70% chance of discount
     const oldPrice = discount > 0 ? Math.floor(price * (1 + discount / 100)) : price;
-    
+
     // Using loremflickr with lock to get consistent but varied images
     const image = `https://loremflickr.com/800/600/${keywords.replace(' ', ',')}?lock=${serviceId}-${i}`;
 
