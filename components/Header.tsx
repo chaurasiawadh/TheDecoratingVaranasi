@@ -9,6 +9,9 @@ export const Header: React.FC = () => {
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
 
+  // Check if we are on the home page or booking page (which overlays home)
+  const isHomePage = location.pathname === '/' || location.pathname === '/booking';
+
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
@@ -21,20 +24,31 @@ export const Header: React.FC = () => {
     setIsOpen(false);
   }, [location]);
 
+  // Determine styles based on scroll and page location
+  // On Home: Transparent at top, White when scrolled.
+  // Other pages: Always White.
+  const isTransparent = isHomePage && !scrolled;
+  
+  const navClasses = `fixed w-full z-50 transition-all duration-500 ease-in-out ${
+    isTransparent ? 'bg-transparent py-4' : 'bg-white/95 backdrop-blur-md shadow-md py-2'
+  }`;
+
+  const textColorClass = isTransparent ? 'text-white' : 'text-gray-800';
+  const iconColorClass = isTransparent ? 'text-white' : 'text-gray-600';
+  const underlineColorClass = isTransparent ? 'bg-secondary' : 'bg-primary';
+
   return (
-    <nav
-      className={`fixed w-full z-50 transition-all duration-300 ${
-        scrolled ? 'bg-white/95 backdrop-blur-md shadow-md py-2' : 'bg-transparent py-4'
-      }`}
-    >
+    <nav className={navClasses}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <Link to="/" className="flex-shrink-0 flex items-center gap-2">
+          <Link to="/" className="flex-shrink-0 flex items-center gap-2 group">
             <img 
               src={LOGO_URL} 
               alt={APP_NAME} 
-              className="h-10 md:h-12 w-auto object-contain rounded-sm"
+              className={`w-auto object-contain rounded-sm transition-all duration-500 ease-in-out ${
+                scrolled ? 'h-8' : 'h-10 md:h-12'
+              }`}
             />
           </Link>
 
@@ -44,24 +58,23 @@ export const Header: React.FC = () => {
               <Link
                 key={item}
                 to={item === 'Home' ? '/' : `/${item.toLowerCase()}`}
-                className={`text-sm font-medium uppercase tracking-wider hover:text-secondary transition-colors ${
-                  scrolled ? 'text-gray-800' : 'text-white'
-                }`}
+                className={`relative group text-sm font-medium uppercase tracking-wider transition-colors ${textColorClass}`}
               >
                 {item}
+                <span className={`absolute -bottom-1 left-0 w-0 h-0.5 transition-all duration-300 ease-out group-hover:w-full ${underlineColorClass}`}></span>
               </Link>
             ))}
             
-            <div className={`flex items-center space-x-4 ${scrolled ? 'text-gray-600' : 'text-white'}`}>
-               <Search className="w-5 h-5 cursor-pointer hover:text-secondary" />
-               <Heart className="w-5 h-5 cursor-pointer hover:text-secondary" />
+            <div className={`flex items-center space-x-4 ${iconColorClass}`}>
+               <Search className="w-5 h-5 cursor-pointer hover:text-secondary transition-colors" />
+               <Heart className="w-5 h-5 cursor-pointer hover:text-secondary transition-colors" />
                <Link to="/booking" className="relative group">
-                 <ShoppingBag className="w-5 h-5 cursor-pointer hover:text-secondary" />
+                 <ShoppingBag className="w-5 h-5 cursor-pointer hover:text-secondary transition-colors" />
                </Link>
             </div>
             
             <Link to="/booking">
-              <button className="bg-gradient-to-r from-primary to-purple-600 text-white px-6 py-2 rounded-full text-sm font-bold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all">
+              <button className="bg-gradient-to-r from-primary to-purple-600 text-white px-6 py-2 rounded-full text-sm font-bold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-300">
                 Book Now
               </button>
             </Link>
@@ -71,7 +84,7 @@ export const Header: React.FC = () => {
           <div className="md:hidden flex items-center">
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className={`p-2 rounded-md ${scrolled ? 'text-gray-800' : 'text-white'}`}
+              className={`p-2 rounded-md ${textColorClass}`}
             >
               {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </button>
@@ -93,7 +106,7 @@ export const Header: React.FC = () => {
                 <Link
                   key={item}
                   to={item === 'Home' ? '/' : `/${item.toLowerCase()}`}
-                  className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary hover:bg-purple-50"
+                  className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-primary hover:bg-purple-50 transition-colors"
                 >
                   {item}
                 </Link>

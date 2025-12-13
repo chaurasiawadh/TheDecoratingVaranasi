@@ -1,5 +1,5 @@
-import React from 'react';
-import { HashRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { HashRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 import { Header } from './components/Header';
 import { Hero } from './components/Hero';
 import { ServiceCard } from './components/ServiceCard';
@@ -12,6 +12,17 @@ import { TESTIMONIALS, LOGO_URL, APP_NAME } from './constants';
 import { motion } from 'framer-motion';
 import { Phone, Mail, MapPin, Instagram, Facebook } from 'lucide-react';
 import { DataProvider, useData } from './contexts/DataContext';
+
+// ScrollToTop Component handles scrolling to top on route change
+const ScrollToTop = () => {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
+  return null;
+};
 
 const Footer = () => (
   <footer className="bg-dark text-gray-300 py-16">
@@ -179,6 +190,7 @@ const App: React.FC = () => {
   return (
     <DataProvider>
       <Router>
+        <ScrollToTop />
         <div className="flex flex-col min-h-screen">
           <Routes>
             <Route path="/admin" element={<Admin />} />
