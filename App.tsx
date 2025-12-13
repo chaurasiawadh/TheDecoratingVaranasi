@@ -9,6 +9,7 @@ import { Admin } from './components/Admin';
 import { Gallery } from './components/Gallery';
 import { Contact } from './components/Contact';
 import { TESTIMONIALS, LOGO_URL, APP_NAME } from './constants';
+import { CapturedMoments } from './components/CapturedMoments';
 import { motion } from 'framer-motion';
 import { Phone, Mail, MapPin, Instagram, Facebook } from 'lucide-react';
 import { DataProvider, useData } from './contexts/DataContext';
@@ -28,9 +29,9 @@ const Footer = () => (
   <footer className="bg-dark text-gray-300 py-16">
     <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-12">
       <div className="col-span-1 md:col-span-2">
-        <img 
-          src={LOGO_URL} 
-          alt={APP_NAME} 
+        <img
+          src={LOGO_URL}
+          alt={APP_NAME}
           className="h-12 w-auto object-contain mb-6 rounded-lg bg-white/10"
         />
         <p className="text-sm leading-relaxed mb-6 max-w-sm">
@@ -45,7 +46,7 @@ const Footer = () => (
           </a>
         </div>
       </div>
-      
+
       <div>
         <h3 className="text-white font-bold mb-4 uppercase text-sm tracking-wider">Quick Links</h3>
         <ul className="space-y-2 text-sm">
@@ -57,7 +58,7 @@ const Footer = () => (
           <li><Link to="/admin" className="hover:text-secondary transition-colors">Admin Portal</Link></li>
         </ul>
       </div>
-      
+
       <div>
         <h3 className="text-white font-bold mb-4 uppercase text-sm tracking-wider">Contact</h3>
         <ul className="space-y-4 text-sm">
@@ -86,13 +87,13 @@ const Home = () => {
   const { services, loading } = useData();
 
   if (loading && services.length === 0) {
-      return <div className="min-h-screen flex items-center justify-center text-primary">Loading amazing things...</div>;
+    return <div className="min-h-screen flex items-center justify-center text-primary">Loading amazing things...</div>;
   }
 
   return (
     <>
       <Hero />
-      
+
       {/* Services Section */}
       <section id="services" className="py-20 bg-gray-50 px-4">
         <div className="max-w-7xl mx-auto">
@@ -101,7 +102,7 @@ const Home = () => {
             <h2 className="text-4xl md:text-5xl font-serif font-bold text-gray-900 mt-2">Curated Experiences</h2>
             <div className="w-20 h-1 bg-secondary mx-auto mt-6 rounded-full"></div>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {services.map((service, index) => (
               <ServiceCard key={service.id} service={service} index={index} />
@@ -113,7 +114,7 @@ const Home = () => {
       {/* How it Works */}
       <section className="py-20 bg-white px-4">
         <div className="max-w-7xl mx-auto">
-           <div className="text-center mb-16">
+          <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-serif font-bold text-gray-900">How It Works</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
@@ -123,23 +124,25 @@ const Home = () => {
               { num: '03', title: 'Book Online', desc: 'Fill the simple form to initiate the request.' },
               { num: '04', title: 'Confirm', desc: 'Finalize details on WhatsApp with our expert.' }
             ].map((step, i) => (
-               <motion.div 
-                 key={i}
-                 initial={{ opacity: 0, y: 20 }}
-                 whileInView={{ opacity: 1, y: 0 }}
-                 transition={{ delay: i * 0.2 }}
-                 className="text-center group"
-               >
-                 <div className="w-16 h-16 rounded-2xl bg-purple-50 text-primary font-bold text-2xl flex items-center justify-center mx-auto mb-6 group-hover:bg-primary group-hover:text-white transition-colors">
-                   {step.num}
-                 </div>
-                 <h3 className="font-bold text-xl mb-2">{step.title}</h3>
-                 <p className="text-gray-500 text-sm">{step.desc}</p>
-               </motion.div>
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.2 }}
+                className="text-center group"
+              >
+                <div className="w-16 h-16 rounded-2xl bg-purple-50 text-primary font-bold text-2xl flex items-center justify-center mx-auto mb-6 group-hover:bg-primary group-hover:text-white transition-colors">
+                  {step.num}
+                </div>
+                <h3 className="font-bold text-xl mb-2">{step.title}</h3>
+                <p className="text-gray-500 text-sm">{step.desc}</p>
+              </motion.div>
             ))}
           </div>
         </div>
       </section>
+
+      <CapturedMoments />
 
       {/* Testimonials */}
       <section className="py-20 bg-dark relative overflow-hidden px-4">
@@ -148,7 +151,7 @@ const Home = () => {
           <h2 className="text-3xl md:text-4xl font-serif font-bold text-white text-center mb-12">Client Love</h2>
           <div className="flex flex-wrap justify-center gap-8">
             {TESTIMONIALS.map((t) => (
-              <motion.div 
+              <motion.div
                 key={t.id}
                 whileHover={{ scale: 1.05 }}
                 className="bg-white/10 backdrop-blur-md p-6 rounded-2xl max-w-sm border border-white/10"
@@ -175,12 +178,12 @@ const ServicesPage = () => {
   return (
     <div className="pt-20 px-4 min-h-screen bg-gray-50 pb-20">
       <div className="max-w-7xl mx-auto">
-          <h1 className="text-4xl font-serif font-bold text-center mb-12 mt-10">All Services</h1>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {services.map((service, index) => (
-                <ServiceCard key={service.id} service={service} index={index} />
-              ))}
-          </div>
+        <h1 className="text-4xl font-serif font-bold text-center mb-12 mt-10">All Services</h1>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {services.map((service, index) => (
+            <ServiceCard key={service.id} service={service} index={index} />
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -194,7 +197,7 @@ const App: React.FC = () => {
         <div className="flex flex-col min-h-screen">
           <Routes>
             <Route path="/admin" element={<Admin />} />
-            
+
             <Route path="*" element={
               <>
                 <Header />
@@ -206,7 +209,7 @@ const App: React.FC = () => {
                     <Route path="/contact" element={<Contact />} />
                     <Route path="/booking" element={
                       <>
-                        <Home /> 
+                        <Home />
                         <BookingModal />
                       </>
                     } />
@@ -215,15 +218,15 @@ const App: React.FC = () => {
                   </Routes>
                 </main>
                 <Footer />
-                
+
                 {/* Mobile Sticky CTA */}
                 <div className="fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 p-3 md:hidden z-40 flex gap-2 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
-                   <a href={`tel:+919250333876`} className="flex-1 bg-gray-100 text-gray-800 font-bold py-3 rounded-lg flex items-center justify-center gap-2">
-                     <Phone className="w-4 h-4" /> Call
-                   </a>
-                   <Link to="/booking" className="flex-1 bg-primary text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2">
-                      Book Now
-                   </Link>
+                  <a href={`tel:+919250333876`} className="flex-1 bg-gray-100 text-gray-800 font-bold py-3 rounded-lg flex items-center justify-center gap-2">
+                    <Phone className="w-4 h-4" /> Call
+                  </a>
+                  <Link to="/booking" className="flex-1 bg-primary text-white font-bold py-3 rounded-lg flex items-center justify-center gap-2">
+                    Book Now
+                  </Link>
                 </div>
               </>
             } />

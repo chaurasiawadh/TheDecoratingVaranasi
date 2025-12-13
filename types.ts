@@ -5,7 +5,7 @@ export interface Service {
   image: string; // Service Hero Image
   priceStart: number;
   features: string[]; // Maps to 'tags' in Firestore
-  
+
   // Extra Firestore fields
   slug?: string;
   currency?: string;
@@ -77,4 +77,12 @@ export interface Testimonial {
   comment: string;
   rating: number;
   image: string;
+}
+
+export interface CapturedMoment {
+  id: string;
+  name: string;
+  type: string; // Service title or ID
+  imageUrl: string;
+  timestamp?: any;
 }
