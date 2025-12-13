@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, ShoppingBag, Heart, Search } from 'lucide-react';
+import { Menu, X, ShoppingBag, Heart, Search, ArrowLeft } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { LOGO_URL, APP_NAME } from '../constants';
 
@@ -41,16 +41,36 @@ export const Header: React.FC = () => {
     <nav className={navClasses}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          {/* Logo */}
-          <Link to="/" className="flex-shrink-0 flex items-center gap-2 group">
-            <img 
-              src={LOGO_URL} 
-              alt={APP_NAME} 
-              className={`w-auto object-contain rounded-sm transition-all duration-500 ease-in-out ${
-                scrolled ? 'h-8' : 'h-10 md:h-12'
-              }`}
-            />
-          </Link>
+          {/* Left Section: Logo + Back Button */}
+          <div className="flex items-center gap-4">
+            <Link to="/" className="flex-shrink-0 flex items-center gap-2 group">
+                <img 
+                src={LOGO_URL} 
+                alt={APP_NAME} 
+                className={`w-auto object-contain rounded-sm transition-all duration-500 ease-in-out ${
+                    scrolled ? 'h-8' : 'h-10 md:h-12'
+                }`}
+                />
+            </Link>
+
+            <AnimatePresence>
+                {scrolled && !isHomePage && (
+                    <motion.div
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -10 }}
+                        className="hidden md:block"
+                    >
+                        <Link 
+                            to="/" 
+                            className="flex items-center gap-1.5 text-xs font-bold text-gray-600 bg-gray-100 hover:bg-primary hover:text-white px-3 py-1.5 rounded-full transition-all"
+                        >
+                            <ArrowLeft className="w-3 h-3" /> Back to Home
+                        </Link>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+          </div>
 
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center space-x-8">
@@ -80,8 +100,24 @@ export const Header: React.FC = () => {
             </Link>
           </div>
 
-          {/* Mobile menu button */}
-          <div className="md:hidden flex items-center">
+          {/* Mobile menu button & Back Link */}
+          <div className="md:hidden flex items-center gap-3">
+             <AnimatePresence>
+                {scrolled && !isHomePage && (
+                    <motion.div
+                        initial={{ opacity: 0, x: 10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: 10 }}
+                    >
+                         <Link 
+                            to="/" 
+                            className="flex items-center gap-1 text-xs font-bold text-gray-600 bg-gray-100 px-3 py-1.5 rounded-full"
+                        >
+                            <ArrowLeft className="w-3 h-3" /> Home
+                        </Link>
+                    </motion.div>
+                )}
+            </AnimatePresence>
             <button
               onClick={() => setIsOpen(!isOpen)}
               className={`p-2 rounded-md ${textColorClass}`}
