@@ -6,6 +6,8 @@ import { ServiceCard } from './components/ServiceCard';
 import { BookingModal } from './components/BookingModal';
 import { ServiceDetail } from './components/ServiceDetail';
 import { Admin } from './components/Admin';
+import { Gallery } from './components/Gallery';
+import { Contact } from './components/Contact';
 import { TESTIMONIALS, LOGO_URL, APP_NAME } from './constants';
 import { motion } from 'framer-motion';
 import { Phone, Mail, MapPin, Instagram, Facebook } from 'lucide-react';
@@ -38,8 +40,9 @@ const Footer = () => (
         <ul className="space-y-2 text-sm">
           <li><Link to="/" className="hover:text-secondary transition-colors">Home</Link></li>
           <li><Link to="/services" className="hover:text-secondary transition-colors">All Services</Link></li>
-          <li><Link to="/booking" className="hover:text-secondary transition-colors">Book Now</Link></li>
+          <li><Link to="/gallery" className="hover:text-secondary transition-colors">Gallery</Link></li>
           <li><Link to="/contact" className="hover:text-secondary transition-colors">Contact Us</Link></li>
+          <li><Link to="/booking" className="hover:text-secondary transition-colors">Book Now</Link></li>
           <li><Link to="/admin" className="hover:text-secondary transition-colors">Admin Portal</Link></li>
         </ul>
       </div>
@@ -187,6 +190,8 @@ const App: React.FC = () => {
                   <Routes>
                     <Route path="/" element={<Home />} />
                     <Route path="/services" element={<ServicesPage />} />
+                    <Route path="/gallery" element={<Gallery />} />
+                    <Route path="/contact" element={<Contact />} />
                     <Route path="/booking" element={
                       <>
                         <Home /> 
