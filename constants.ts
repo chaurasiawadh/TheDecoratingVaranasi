@@ -13,6 +13,7 @@ export const SERVICES: Service[] = [
     priceStart: 1999,
     features: ["Balloon Arches", "Themed Backdrops", "Cake Table Decor"]
   },
+
   {
     id: "wedding",
     title: "Wedding Decorations",
