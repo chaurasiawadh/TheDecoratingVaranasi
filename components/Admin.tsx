@@ -221,6 +221,7 @@ const ServiceForm = ({ serviceId, onBack, onSuccess, onManageItems }: any) => {
 
   const [customTag, setCustomTag] = useState('');
   const [loading, setLoading] = useState(false);
+  const [isEditingDetails, setIsEditingDetails] = useState(!serviceId); // Open by default for new services
 
   const PREDEFINED_TAGS = ["Balloon Arches", "Themed Backdrops", "Cake Table Decor"];
 
@@ -275,144 +276,162 @@ const ServiceForm = ({ serviceId, onBack, onSuccess, onManageItems }: any) => {
         <ArrowLeft className="w-4 h-4" /> Back to Dashboard
       </button>
 
-      <div className="bg-white rounded-xl shadow-sm border p-8">
-        <div className="flex justify-between items-start mb-6">
-          <h2 className="text-2xl font-bold text-gray-900">{serviceId ? 'Edit Service' : 'New Service'}</h2>
-          {serviceId && (
-            <button onClick={() => onManageItems(serviceId)} className="bg-secondary text-white px-4 py-2 rounded-lg font-bold text-sm">
-              Manage Items
-            </button>
-          )}
-        </div>
+      {serviceId && (
+        <button
+          onClick={() => onManageItems(serviceId)}
+          className="w-full bg-secondary text-white py-4 rounded-xl font-bold text-lg mb-6 shadow-md hover:bg-purple-700 transition-all flex items-center justify-center gap-2"
+        >
+          <Edit className="w-5 h-5" /> Manage {existingService?.title} Items
+        </button>
+      )}
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {serviceId && (
+        <button
+          onClick={() => setIsEditingDetails(!isEditingDetails)}
+          className={`w-full py-3 rounded-lg font-bold border mb-6 transition-all flex items-center justify-center gap-2 ${isEditingDetails
+            ? 'bg-gray-100 text-gray-700 border-gray-300'
+            : 'bg-primary text-white border-primary hover:bg-purple-700'
+            }`}
+        >
+          <Edit className="w-4 h-4" /> {isEditingDetails ? `Hide ${existingService?.title} Details` : `Edit ${existingService?.title} Details`}
+        </button>
+      )}
+
+      {isEditingDetails && (
+        <div className="bg-white rounded-xl shadow-sm border p-8">
+          <div className="flex justify-between items-start mb-6">
+            <h2 className="text-2xl font-bold text-gray-900">{serviceId ? 'Edit Service' : 'New Service'}</h2>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">Service Title</label>
+                <input
+                  className="w-full p-3 border rounded-lg"
+                  value={formData.title}
+                  onChange={e => setFormData({ ...formData, title: e.target.value })}
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">Slug (ID)</label>
+                <input
+                  className="w-full p-3 border rounded-lg bg-gray-50"
+                  value={formData.slug}
+                  onChange={e => setFormData({ ...formData, slug: e.target.value.toLowerCase().replace(/\s+/g, '-') })}
+                  required
+                  disabled={!!serviceId}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-2">Starting Price</label>
+                <input
+                  type="number"
+                  className="w-full p-3 border rounded-lg"
+                  value={formData.priceStart}
+                  onChange={e => setFormData({ ...formData, priceStart: e.target.value })}
+                  placeholder="0"
+                />
+              </div>
+            </div>
+
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">Service Title</label>
-              <input
-                className="w-full p-3 border rounded-lg"
-                value={formData.title}
-                onChange={e => setFormData({ ...formData, title: e.target.value })}
+              <label className="block text-sm font-bold text-gray-700 mb-2">Description</label>
+              <textarea
+                className="w-full p-3 border rounded-lg h-32"
+                value={formData.description}
+                onChange={e => setFormData({ ...formData, description: e.target.value })}
                 required
               />
             </div>
+
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">Slug (ID)</label>
-              <input
-                className="w-full p-3 border rounded-lg bg-gray-50"
-                value={formData.slug}
-                onChange={e => setFormData({ ...formData, slug: e.target.value.toLowerCase().replace(/\s+/g, '-') })}
-                required
-                disabled={!!serviceId}
-              />
+              <label className="block text-sm font-bold text-gray-700 mb-2">Features / Tags</label>
+
+              {/* Selected Tags */}
+              <div className="flex flex-wrap gap-2 mb-3">
+                {formData.tags.map(tag => (
+                  <span key={tag} className="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm font-bold flex items-center gap-2">
+                    {tag}
+                    <button type="button" onClick={() => toggleServiceTag(tag)} className="hover:text-red-500">
+                      ×
+                    </button>
+                  </span>
+                ))}
+              </div>
+
+              {/* Predefined Options */}
+              <div className="flex flex-wrap gap-2 mb-3">
+                {PREDEFINED_TAGS.map(tag => {
+                  if (formData.tags.includes(tag)) return null;
+                  return (
+                    <button
+                      key={tag}
+                      type="button"
+                      onClick={() => toggleServiceTag(tag)}
+                      className="px-3 py-1 rounded-full text-sm border border-gray-200 text-gray-600 hover:border-primary hover:text-primary transition-colors"
+                    >
+                      + {tag}
+                    </button>
+                  )
+                })}
+              </div>
+
+              {/* Custom Tag Input */}
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={customTag}
+                  onChange={(e) => setCustomTag(e.target.value)}
+                  placeholder="Add extra tag..."
+                  className="flex-grow p-2 border rounded"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      addCustomTag();
+                    }
+                  }}
+                />
+                <button type="button" onClick={addCustomTag} className="bg-gray-100 px-4 py-2 rounded font-bold hover:bg-gray-200 text-sm">
+                  Add
+                </button>
+              </div>
             </div>
+
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-2">Starting Price</label>
-              <input
-                type="number"
-                className="w-full p-3 border rounded-lg"
-                value={formData.priceStart}
-                onChange={e => setFormData({ ...formData, priceStart: e.target.value })}
-                placeholder="0"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-bold text-gray-700 mb-2">Description</label>
-            <textarea
-              className="w-full p-3 border rounded-lg h-32"
-              value={formData.description}
-              onChange={e => setFormData({ ...formData, description: e.target.value })}
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-bold text-gray-700 mb-2">Features / Tags</label>
-
-            {/* Selected Tags */}
-            <div className="flex flex-wrap gap-2 mb-3">
-              {formData.tags.map(tag => (
-                <span key={tag} className="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm font-bold flex items-center gap-2">
-                  {tag}
-                  <button type="button" onClick={() => toggleServiceTag(tag)} className="hover:text-red-500">
-                    ×
-                  </button>
-                </span>
-              ))}
+              <label className="block text-sm font-bold text-gray-700 mb-2">Hero Image</label>
+              <div className="flex items-center gap-4">
+                {formData.imageUrl && (
+                  <img src={formData.imageUrl} className="w-16 h-16 rounded object-cover" alt="Preview" />
+                )}
+                {!formData.imageUrl && existingService?.image && (
+                  <img src={existingService.image} alt="Current" className="w-16 h-16 object-cover rounded" />
+                )}
+              </div>
+              <div className="mt-2">
+                <input
+                  type="text"
+                  placeholder="Or paste image URL"
+                  className="w-full p-2 border rounded text-sm"
+                  value={formData.imageUrl}
+                  onChange={e => setFormData({ ...formData, imageUrl: e.target.value })}
+                />
+              </div>
             </div>
 
-            {/* Predefined Options */}
-            <div className="flex flex-wrap gap-2 mb-3">
-              {PREDEFINED_TAGS.map(tag => {
-                if (formData.tags.includes(tag)) return null;
-                return (
-                  <button
-                    key={tag}
-                    type="button"
-                    onClick={() => toggleServiceTag(tag)}
-                    className="px-3 py-1 rounded-full text-sm border border-gray-200 text-gray-600 hover:border-primary hover:text-primary transition-colors"
-                  >
-                    + {tag}
-                  </button>
-                )
-              })}
-            </div>
-
-            {/* Custom Tag Input */}
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={customTag}
-                onChange={(e) => setCustomTag(e.target.value)}
-                placeholder="Add extra tag..."
-                className="flex-grow p-2 border rounded"
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault();
-                    addCustomTag();
-                  }
-                }}
-              />
-              <button type="button" onClick={addCustomTag} className="bg-gray-100 px-4 py-2 rounded font-bold hover:bg-gray-200 text-sm">
-                Add
+            <div className="pt-4 border-t flex justify-end">
+              <button
+                type="submit"
+                disabled={loading}
+                className="bg-primary text-white px-8 py-3 rounded-lg font-bold hover:bg-purple-700 transition-all flex items-center gap-2"
+              >
+                {loading ? <Loader2 className="animate-spin" /> : <Save className="w-5 h-5" />} Save Service
               </button>
             </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-bold text-gray-700 mb-2">Hero Image</label>
-            <div className="flex items-center gap-4">
-              {formData.imageUrl && (
-                <img src={formData.imageUrl} className="w-16 h-16 rounded object-cover" alt="Preview" />
-              )}
-              {!formData.imageUrl && existingService?.image && (
-                <img src={existingService.image} alt="Current" className="w-16 h-16 object-cover rounded" />
-              )}
-            </div>
-            <div className="mt-2">
-              <input
-                type="text"
-                placeholder="Or paste image URL"
-                className="w-full p-2 border rounded text-sm"
-                value={formData.imageUrl}
-                onChange={e => setFormData({ ...formData, imageUrl: e.target.value })}
-              />
-            </div>
-          </div>
-
-          <div className="pt-4 border-t flex justify-end">
-            <button
-              type="submit"
-              disabled={loading}
-              className="bg-primary text-white px-8 py-3 rounded-lg font-bold hover:bg-purple-700 transition-all flex items-center gap-2"
-            >
-              {loading ? <Loader2 className="animate-spin" /> : <Save className="w-5 h-5" />} Save Service
-            </button>
-          </div>
-        </form>
-      </div>
+          </form>
+        </div>
+      )}
     </div>
   );
 };
@@ -542,11 +561,19 @@ const ItemManager = ({ serviceId, onBack, onSuccess }: any) => {
             <div className="grid grid-cols-2 gap-4">
               <div className="col-span-2 md:col-span-1">
                 <label className="block text-sm font-bold text-gray-700 mb-1">Item Name</label>
-                <input className="w-full p-2 border rounded" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} required />
-              </div>
-              <div className="col-span-2 md:col-span-1">
-                <label className="block text-sm font-bold text-gray-700 mb-1">Item ID (Slug)</label>
-                <input className="w-full p-2 border rounded bg-gray-50" value={formData.id} onChange={e => setFormData({ ...formData, id: e.target.value })} required disabled={!!editingItem.id} />
+                <input
+                  className="w-full p-2 border rounded"
+                  value={formData.name}
+                  onChange={e => {
+                    const val = e.target.value;
+                    setFormData(prev => ({
+                      ...prev,
+                      name: val,
+                      id: (!editingItem.id) ? val.toLowerCase().trim().replace(/\s+/g, '-') : prev.id
+                    }));
+                  }}
+                  required
+                />
               </div>
               <div>
                 <label className="block text-sm font-bold text-gray-700 mb-1">Price</label>
@@ -615,12 +642,19 @@ const ItemManager = ({ serviceId, onBack, onSuccess }: any) => {
 
             <div>
               <label className="block text-sm font-bold text-gray-700 mb-2">Item Image</label>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-4 mb-3">
                 {formData.imageUrl && (
                   <img src={formData.imageUrl} className="w-16 h-16 rounded object-cover" alt="Preview" />
                 )}
                 {!formData.imageUrl && editingItem.image && <img src={editingItem.image} className="w-16 h-16 rounded object-cover" alt="Existing" />}
               </div>
+              <input
+                type="text"
+                placeholder="Paste image URL here..."
+                className="w-full p-2 border rounded"
+                value={formData.imageUrl}
+                onChange={e => setFormData({ ...formData, imageUrl: e.target.value })}
+              />
             </div>
 
             <div className="pt-4 border-t flex justify-end">
