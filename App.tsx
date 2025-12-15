@@ -17,6 +17,7 @@ import { DataProvider, useData } from './contexts/DataContext';
 
 // ScrollToTop Component handles scrolling to top on route change
 const ScrollToTop = () => {
+
   const { pathname } = useLocation();
 
   useEffect(() => {
