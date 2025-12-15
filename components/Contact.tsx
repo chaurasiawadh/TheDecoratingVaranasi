@@ -124,7 +124,7 @@ Message: ${formData.message}
                                 <div>
                                     <h3 className="font-bold text-gray-900 text-lg">Phone & WhatsApp</h3>
                                     <p className="text-gray-500 mb-1">Available 9 AM - 9 PM</p>
-                                    <a href={`tel:+918112918006`} className="text-primary font-bold hover:underline text-lg">+91 81129 18006</a>
+                                    <a href={`tel:+919250333876`} className="text-primary font-bold hover:underline text-lg">+91 92503 33876</a>
                                 </div>
                             </div>
 
