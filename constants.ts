@@ -1,6 +1,6 @@
 import { Service, Package, Testimonial, ProductItem } from './types';
 
-export const PHONE_NUMBER = "919936169852";
+export const PHONE_NUMBER = "918112918006";
 export const APP_NAME = "TheDecoratingVaranasi";
 export const LOGO_URL = "https://i.ibb.co/V0LTJJpZ/THE-DECORATINDG-VARANASI-NEW-LOGO-2.png";
 

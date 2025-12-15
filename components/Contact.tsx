@@ -14,12 +14,41 @@ export const Contact: React.FC = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [success, setSuccess] = useState(false);
 
+    const [errors, setErrors] = useState<Partial<Record<string, string>>>({});
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
+        // Clear error when user starts typing
+        if (errors[e.target.name]) {
+            setErrors({ ...errors, [e.target.name]: undefined });
+        }
+    };
+
+    const validateForm = () => {
+        const newErrors: Record<string, string> = {};
+
+        if (!formData.name.trim() || formData.name.length < 3) {
+            newErrors.name = "Name must be at least 3 characters";
+        }
+
+        const phoneRegex = /^[6-9]\d{9}$/;
+        if (!formData.phone || !phoneRegex.test(formData.phone)) {
+            newErrors.phone = "Please enter a valid 10-digit Indian number";
+        }
+
+        if (!formData.message.trim() || formData.message.length < 10) {
+            newErrors.message = "Message must be at least 10 characters";
+        }
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
     };
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+
+        if (!validateForm()) return;
+
         setIsSubmitting(true);
 
         // Simulate network delay
@@ -95,7 +124,7 @@ Message: ${formData.message}
                                 <div>
                                     <h3 className="font-bold text-gray-900 text-lg">Phone & WhatsApp</h3>
                                     <p className="text-gray-500 mb-1">Available 9 AM - 9 PM</p>
-                                    <a href={`tel:+919250333876`} className="text-primary font-bold hover:underline text-lg">+91 92503 33876</a>
+                                    <a href={`tel:+918112918006`} className="text-primary font-bold hover:underline text-lg">+91 81129 18006</a>
                                 </div>
                             </div>
 
@@ -168,7 +197,7 @@ Message: ${formData.message}
                                 <p className="text-gray-500">Redirecting to WhatsApp to send your message...</p>
                             </div>
                         ) : (
-                            <form onSubmit={handleSubmit} className="space-y-6">
+                            <form onSubmit={handleSubmit} className="space-y-6" noValidate>
                                 <h2 className="text-2xl font-serif font-bold text-gray-900">Send a Message</h2>
 
                                 <div>
@@ -178,23 +207,24 @@ Message: ${formData.message}
                                         name="name"
                                         value={formData.name}
                                         onChange={handleChange}
-                                        required
-                                        className="w-full p-4 bg-gray-50 rounded-xl border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                                        className={`w-full p-4 bg-gray-50 rounded-xl border ${errors.name ? 'border-red-500' : 'border-gray-200'} focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all`}
                                         placeholder="John Doe"
                                     />
+                                    {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
                                 </div>
 
                                 <div>
                                     <label className="block text-sm font-bold text-gray-700 mb-2">Phone Number</label>
                                     <input
-                                        type="number"
+                                        type="tel"
                                         name="phone"
                                         value={formData.phone}
                                         onChange={handleChange}
-                                        required
-                                        className="w-full p-4 bg-gray-50 rounded-xl border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
-                                        placeholder="9876543210"
+                                        className={`w-full p-4 bg-gray-50 rounded-xl border ${errors.phone ? 'border-red-500' : 'border-gray-200'} focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all`}
+                                        placeholder="98765 43210"
+                                        maxLength={10}
                                     />
+                                    {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
                                 </div>
 
                                 <div>
@@ -220,10 +250,10 @@ Message: ${formData.message}
                                         name="message"
                                         value={formData.message}
                                         onChange={handleChange}
-                                        required
-                                        className="w-full p-4 bg-gray-50 rounded-xl border border-gray-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all h-32 resize-none"
+                                        className={`w-full p-4 bg-gray-50 rounded-xl border ${errors.message ? 'border-red-500' : 'border-gray-200'} focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all h-32 resize-none`}
                                         placeholder="Tell us about your event date, venue, and requirements..."
                                     />
+                                    {errors.message && <p className="text-red-500 text-xs mt-1">{errors.message}</p>}
                                 </div>
 
                                 <button

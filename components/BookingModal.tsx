@@ -296,7 +296,7 @@ ${formData.message || 'None'}
                   value={formData.phone}
                   onChange={handleChange}
                   className={getInputClass('phone')}
-                  placeholder="9936169852"
+                  placeholder="Phone number"
                   maxLength={10}
                 />
                 {errors.phone && <p className="text-red-500 text-xs mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" /> {errors.phone}</p>}
