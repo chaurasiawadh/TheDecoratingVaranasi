@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { collection, addDoc, serverTimestamp, deleteDoc, doc, updateDoc } from 'firebase/firestore';
-import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
+
 import { db, storage } from '../firebase-config';
 import { useData } from '../contexts/DataContext';
 import { Loader2, Save, Trash2, ArrowLeft, Heart, Star } from 'lucide-react';
@@ -14,7 +14,6 @@ interface ClientLoveAdminProps {
 export const ClientLoveAdmin: React.FC<ClientLoveAdminProps> = ({ onBack, onSuccess }) => {
     const { testimonials, refreshData } = useData();
     const [loading, setLoading] = useState(false);
-    const [uploadProgress, setUploadProgress] = useState(0);
 
     // Form State
     const [formData, setFormData] = useState({
@@ -23,31 +22,12 @@ export const ClientLoveAdmin: React.FC<ClientLoveAdminProps> = ({ onBack, onSucc
         message: '',
         imageUrl: ''
     });
-    const [imageFile, setImageFile] = useState<File | null>(null);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
-        setUploadProgress(0);
-
         try {
             let imageUrl = formData.imageUrl;
-
-            if (imageFile) {
-                const storageRef = ref(storage, `testimonials/${Date.now()}_${imageFile.name}`);
-                const uploadTask = uploadBytesResumable(storageRef, imageFile);
-
-                await new Promise<void>((resolve, reject) => {
-                    uploadTask.on('state_changed',
-                        (snap) => setUploadProgress((snap.bytesTransferred / snap.totalBytes) * 100),
-                        reject,
-                        async () => {
-                            imageUrl = await getDownloadURL(uploadTask.snapshot.ref);
-                            resolve();
-                        }
-                    );
-                });
-            }
 
             if (!imageUrl) {
                 // Use a default avatar if no image provided
@@ -68,8 +48,6 @@ export const ClientLoveAdmin: React.FC<ClientLoveAdminProps> = ({ onBack, onSucc
 
             // Reset form
             setFormData({ name: '', rating: '5', message: '', imageUrl: '' });
-            setImageFile(null);
-            setUploadProgress(0);
 
             await refreshData();
             alert('Testimonial added successfully!');
@@ -164,13 +142,6 @@ export const ClientLoveAdmin: React.FC<ClientLoveAdminProps> = ({ onBack, onSucc
                                 <label className="block text-sm font-bold text-gray-700 mb-1">Photo (Optional)</label>
                                 <div className="space-y-3">
                                     <input
-                                        type="file"
-                                        accept="image/*"
-                                        onChange={e => setImageFile(e.target.files?.[0] || null)}
-                                        className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
-                                    />
-                                    <div className="text-center text-gray-400 text-xs">- OR -</div>
-                                    <input
                                         type="url"
                                         placeholder="Paste Image URL"
                                         className="w-full p-2 border rounded-lg text-sm"
@@ -178,12 +149,6 @@ export const ClientLoveAdmin: React.FC<ClientLoveAdminProps> = ({ onBack, onSucc
                                         onChange={e => setFormData({ ...formData, imageUrl: e.target.value })}
                                     />
                                 </div>
-
-                                {loading && uploadProgress > 0 && (
-                                    <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
-                                        <div className="bg-primary h-2 rounded-full transition-all duration-300" style={{ width: `${uploadProgress}%` }}></div>
-                                    </div>
-                                )}
                             </div>
 
                             <button

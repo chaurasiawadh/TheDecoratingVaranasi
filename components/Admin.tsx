@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { signInWithEmailAndPassword, signOut, onAuthStateChanged, User } from 'firebase/auth';
 import { collection, doc, setDoc, addDoc, serverTimestamp, getDocs } from 'firebase/firestore';
-import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
+
 import { auth, db, storage } from '../firebase-config';
 import { Lock, LogOut, Plus, Image as ImageIcon, Save, Loader2, ArrowLeft, Edit, Check, Camera, Heart } from 'lucide-react';
 import { useData } from '../contexts/DataContext';
@@ -218,9 +218,9 @@ const ServiceForm = ({ serviceId, onBack, onSuccess, onManageItems }: any) => {
     imageUrl: '',
     priceStart: existingService?.priceStart || ''
   });
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [loading, setLoading] = useState(false);
+
   const [customTag, setCustomTag] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const PREDEFINED_TAGS = ["Balloon Arches", "Themed Backdrops", "Cake Table Decor"];
 
@@ -246,12 +246,6 @@ const ServiceForm = ({ serviceId, onBack, onSuccess, onManageItems }: any) => {
 
     try {
       let imageUrl = formData.imageUrl || existingService?.image || '';
-
-      if (imageFile) {
-        const storageRef = ref(storage, `services/${formData.slug}/hero_${Date.now()}`);
-        const uploadTask = await uploadBytesResumable(storageRef, imageFile);
-        imageUrl = await getDownloadURL(uploadTask.ref);
-      }
 
       const serviceData = {
         service: formData.title,
@@ -390,11 +384,10 @@ const ServiceForm = ({ serviceId, onBack, onSuccess, onManageItems }: any) => {
           <div>
             <label className="block text-sm font-bold text-gray-700 mb-2">Hero Image</label>
             <div className="flex items-center gap-4">
-              <input type="file" onChange={e => setImageFile(e.target.files?.[0] || null)} accept="image/*" />
-              {formData.imageUrl && !imageFile && (
+              {formData.imageUrl && (
                 <img src={formData.imageUrl} className="w-16 h-16 rounded object-cover" alt="Preview" />
               )}
-              {!formData.imageUrl && existingService?.image && !imageFile && (
+              {!formData.imageUrl && existingService?.image && (
                 <img src={existingService.image} alt="Current" className="w-16 h-16 object-cover rounded" />
               )}
             </div>
@@ -446,9 +439,7 @@ const ItemManager = ({ serviceId, onBack, onSuccess }: any) => {
     rating: '' as string | number,
     reviews: '' as string | number
   });
-  const [imageFile, setImageFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
 
   // Populate form on edit
   useEffect(() => {
@@ -485,28 +476,10 @@ const ItemManager = ({ serviceId, onBack, onSuccess }: any) => {
   const handleSaveItem = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setUploadProgress(0);
     console.log('formData', formData);
 
     try {
       let imageUrl = formData.imageUrl || editingItem?.image || '';
-
-      // Upload Image
-      if (imageFile) {
-        const storageRef = ref(storage, `services/${serviceId}/items/${formData.id}_${Date.now()}`);
-        const uploadTask = uploadBytesResumable(storageRef, imageFile);
-
-        await new Promise<void>((resolve, reject) => {
-          uploadTask.on('state_changed',
-            (snap) => setUploadProgress((snap.bytesTransferred / snap.totalBytes) * 100),
-            reject,
-            async () => {
-              imageUrl = await getDownloadURL(uploadTask.snapshot.ref);
-              resolve();
-            }
-          );
-        });
-      }
 
       const priceVal = Number(formData.price) || 0;
       const oldPriceVal = Number(formData.oldPrice) || 0;
@@ -547,8 +520,8 @@ const ItemManager = ({ serviceId, onBack, onSuccess }: any) => {
 
       alert('Item Saved!');
       onSuccess();
+      onSuccess();
       setEditingItem(null); // Return to list
-      setImageFile(null);
     } catch (err) {
       console.error(err);
       alert('Error saving item');
@@ -643,32 +616,16 @@ const ItemManager = ({ serviceId, onBack, onSuccess }: any) => {
             <div>
               <label className="block text-sm font-bold text-gray-700 mb-2">Item Image</label>
               <div className="flex items-center gap-4">
-                <input type="file" onChange={e => setImageFile(e.target.files?.[0] || null)} accept="image/*" />
-                <input type="file" onChange={e => setImageFile(e.target.files?.[0] || null)} accept="image/*" />
-                {formData.imageUrl && !imageFile && (
+                {formData.imageUrl && (
                   <img src={formData.imageUrl} className="w-16 h-16 rounded object-cover" alt="Preview" />
                 )}
-                {!formData.imageUrl && editingItem.image && !imageFile && <img src={editingItem.image} className="w-16 h-16 rounded object-cover" alt="Existing" />}
+                {!formData.imageUrl && editingItem.image && <img src={editingItem.image} className="w-16 h-16 rounded object-cover" alt="Existing" />}
               </div>
-              <div className="mt-2">
-                <input
-                  type="text"
-                  placeholder="Or paste image URL"
-                  className="w-full p-2 border rounded text-sm"
-                  value={formData.imageUrl}
-                  onChange={e => setFormData({ ...formData, imageUrl: e.target.value })}
-                />
-              </div>
-              {loading && uploadProgress > 0 && (
-                <div className="w-full bg-gray-200 rounded-full h-2.5 mt-2">
-                  <div className="bg-primary h-2.5 rounded-full" style={{ width: `${uploadProgress}%` }}></div>
-                </div>
-              )}
             </div>
 
             <div className="pt-4 border-t flex justify-end">
               <button type="submit" disabled={loading} className="bg-primary text-white px-6 py-2 rounded-lg font-bold flex gap-2">
-                {loading ? 'Uploading...' : 'Save Item'}
+                {loading ? 'Saving...' : 'Save Item'}
               </button>
             </div>
           </form>
