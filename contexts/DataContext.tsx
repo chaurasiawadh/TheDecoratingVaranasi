@@ -1,14 +1,15 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { collection, getDocs, collectionGroup } from 'firebase/firestore';
+import { collection, getDocs, collectionGroup, doc, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase-config';
 import { SERVICES, ALL_PRODUCTS } from '../constants';
-import { Service, ProductItem, CapturedMoment, Testimonial } from '../types';
+import { Service, ProductItem, CapturedMoment, Testimonial, HeaderBanner } from '../types';
 
 interface DataContextType {
   services: Service[];
   products: ProductItem[];
   capturedMoments: CapturedMoment[];
   testimonials: Testimonial[];
+  banner: HeaderBanner | null;
   loading: boolean;
   refreshData: () => Promise<void>;
 }
@@ -18,6 +19,7 @@ const DataContext = createContext<DataContextType>({
   products: ALL_PRODUCTS,
   capturedMoments: [],
   testimonials: [],
+  banner: null,
   loading: false,
   refreshData: async () => { },
 });
@@ -29,6 +31,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [products, setProducts] = useState<ProductItem[]>(ALL_PRODUCTS);
   const [capturedMoments, setCapturedMoments] = useState<CapturedMoment[]>([]);
   const [testimonials, setTestimonials] = useState<Testimonial[]>([]);
+  const [banner, setBanner] = useState<HeaderBanner | null>(null);
   const [loading, setLoading] = useState(true);
 
   const refreshData = async () => {
@@ -106,10 +109,23 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   useEffect(() => {
     refreshData();
+    // Real-time listener for header_banner collection
+    const bannerDoc = doc(db, 'header_banner', 'config');
+    const unsubBanner = onSnapshot(bannerDoc, (snap) => {
+      if (snap.exists()) {
+        const data = snap.data();
+        setBanner({ message: data.message || '', isActive: data.isActive === true });
+      } else {
+        setBanner(null);
+      }
+    }, (err) => {
+      console.warn('Banner listener error:', err.message);
+    });
+    return () => unsubBanner();
   }, []);
 
   return (
-    <DataContext.Provider value={{ services, products, capturedMoments, testimonials, loading, refreshData }}>
+    <DataContext.Provider value={{ services, products, capturedMoments, testimonials, banner, loading, refreshData }}>
       {children}
     </DataContext.Provider>
   );

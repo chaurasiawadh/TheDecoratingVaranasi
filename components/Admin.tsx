@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { signInWithEmailAndPassword, signOut, onAuthStateChanged, User } from 'firebase/auth';
-import { collection, doc, setDoc, addDoc, serverTimestamp, getDocs } from 'firebase/firestore';
+import { collection, doc, setDoc, addDoc, serverTimestamp, getDocs, getDoc } from 'firebase/firestore';
 
 import { auth, db, storage } from '../firebase-config';
-import { Lock, LogOut, Plus, Image as ImageIcon, Save, Loader2, ArrowLeft, Edit, Check, Camera, Heart } from 'lucide-react';
+import { Lock, LogOut, Plus, Image as ImageIcon, Save, Loader2, ArrowLeft, Edit, Check, Camera, Heart, Megaphone } from 'lucide-react';
 import { useData } from '../contexts/DataContext';
 import { Link } from 'react-router-dom';
 import { CapturedMomentsAdmin } from './CapturedMomentsAdmin';
@@ -19,7 +19,7 @@ export const Admin: React.FC = () => {
   // Data State
   const { services, refreshData } = useData();
   const [selectedServiceId, setSelectedServiceId] = useState<string | null>(null);
-  const [view, setView] = useState<'list' | 'service-form' | 'item-form' | 'moments' | 'testimonials'>('list');
+  const [view, setView] = useState<'list' | 'service-form' | 'item-form' | 'moments' | 'testimonials' | 'banner'>('list');
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -112,6 +112,7 @@ export const Admin: React.FC = () => {
             onEditService={(id) => { setSelectedServiceId(id); setView('service-form'); }}
             onManageMoments={() => setView('moments')}
             onManageTestimonials={() => setView('testimonials')}
+            onManageBanner={() => setView('banner')}
           />
         )}
 
@@ -127,6 +128,10 @@ export const Admin: React.FC = () => {
             onBack={() => setView('list')}
             onSuccess={() => { refreshData(); }}
           />
+        )}
+
+        {view === 'banner' && (
+          <BannerAdmin onBack={() => setView('list')} />
         )}
 
         {view === 'service-form' && (
@@ -150,7 +155,7 @@ export const Admin: React.FC = () => {
   );
 };
 
-const DashboardList = ({ services, onAddService, onEditService, onManageMoments, onManageTestimonials }: any) => (
+const DashboardList = ({ services, onAddService, onEditService, onManageMoments, onManageTestimonials, onManageBanner }: any) => (
   <div className="space-y-6">
     <div className="flex justify-between items-center">
       <h2 className="text-2xl font-bold text-gray-800">Services</h2>
@@ -173,6 +178,13 @@ const DashboardList = ({ services, onAddService, onEditService, onManageMoments,
           <Heart className="w-6 h-6" />
         </div>
         <span className="font-bold text-gray-800">Client Love</span>
+      </button>
+
+      <button onClick={onManageBanner} className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all flex flex-col items-center justify-center gap-3 group">
+        <div className="w-12 h-12 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center group-hover:bg-amber-500 group-hover:text-white transition-colors">
+          <Megaphone className="w-6 h-6" />
+        </div>
+        <span className="font-bold text-gray-800">Banner</span>
       </button>
     </div>
 
@@ -709,6 +721,139 @@ const ItemManager = ({ serviceId, onBack, onSuccess }: any) => {
               ))}
             </tbody>
           </table>
+        )}
+      </div>
+    </div>
+  );
+};
+
+const BannerAdmin = ({ onBack }: { onBack: () => void }) => {
+  const [message, setMessage] = useState('');
+  const [isActive, setIsActive] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const ref = doc(db, 'header_banner', 'config');
+        const snap = await getDoc(ref);
+        if (snap.exists()) {
+          const data = snap.data();
+          setMessage(data.message || '');
+          setIsActive(data.isActive === true);
+        }
+      } catch (e) {
+        console.error('Error loading banner:', e);
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
+  }, []);
+
+  const handleSave = async () => {
+    setSaving(true);
+    setSaved(false);
+    try {
+      const ref = doc(db, 'header_banner', 'config');
+      await setDoc(ref, { message, isActive, updatedAt: serverTimestamp() }, { merge: true });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } catch (e) {
+      console.error('Error saving banner:', e);
+      alert('Error saving banner. Check console.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="max-w-2xl mx-auto">
+      <button onClick={onBack} className="text-gray-500 hover:text-gray-900 flex items-center gap-2 mb-6">
+        <ArrowLeft className="w-4 h-4" /> Back to Dashboard
+      </button>
+
+      <div className="bg-white rounded-xl shadow-sm border p-8">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-10 h-10 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center">
+            <Megaphone className="w-5 h-5" />
+          </div>
+          <div>
+            <h2 className="text-xl font-bold text-gray-900">Header Banner</h2>
+            <p className="text-sm text-gray-500">Manage the scrolling announcement banner at the top of the site.</p>
+          </div>
+        </div>
+
+        {loading ? (
+          <div className="flex items-center justify-center py-12 text-gray-400">
+            <Loader2 className="animate-spin w-6 h-6 mr-2" /> Loading...
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {/* Active Toggle */}
+            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border">
+              <div>
+                <p className="font-bold text-gray-800">Banner Active</p>
+                <p className="text-sm text-gray-500">Toggle to show or hide the banner on the website.</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsActive(v => !v)}
+                className={`relative inline-flex h-7 w-14 items-center rounded-full transition-colors duration-300 focus:outline-none ${isActive ? 'bg-green-500' : 'bg-gray-300'}`}
+              >
+                <span
+                  className={`inline-block h-5 w-5 transform rounded-full bg-white shadow-md transition-transform duration-300 ${isActive ? 'translate-x-8' : 'translate-x-1'}`}
+                />
+              </button>
+            </div>
+
+            {/* Banner Status Preview */}
+            <div className={`text-xs font-bold px-3 py-1.5 rounded-full inline-flex items-center gap-1.5 ${isActive ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'}`}>
+              <span className={`w-2 h-2 rounded-full ${isActive ? 'bg-green-500' : 'bg-red-400'}`}></span>
+              {isActive ? 'Banner will be VISIBLE on website' : 'Banner is HIDDEN from website'}
+            </div>
+
+            {/* Message Input */}
+            <div>
+              <label className="block text-sm font-bold text-gray-700 mb-2">Banner Message</label>
+              <textarea
+                className="w-full p-3 border border-gray-200 rounded-lg h-28 resize-none focus:ring-2 focus:ring-amber-400 focus:border-transparent outline-none text-sm"
+                placeholder="e.g. 🎉 Join the Vinaykarugs Family – Get UP TO 25% OFF on Holi Sale! Free Shipping, Pan India – Delivered with care to your doorstep."
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+              />
+              <p className="text-xs text-gray-400 mt-1">This text will scroll continuously across the banner strip.</p>
+            </div>
+
+            {/* Live Preview */}
+            {message.trim() && (
+              <div>
+                <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Live Preview</p>
+                <div className="bg-[#3d1a1a] text-[#f5d9b0] text-xs font-medium py-2 overflow-hidden rounded-lg">
+                  <div className="whitespace-nowrap px-4 truncate opacity-80">{message} &nbsp;✦&nbsp; {message}</div>
+                </div>
+              </div>
+            )}
+
+            {/* Save Button */}
+            <div className="pt-2 flex items-center gap-4">
+              <button
+                onClick={handleSave}
+                disabled={saving}
+                className="bg-amber-500 hover:bg-amber-600 text-white font-bold px-8 py-3 rounded-lg transition-colors flex items-center gap-2 disabled:opacity-60"
+              >
+                {saving ? <Loader2 className="animate-spin w-4 h-4" /> : <Save className="w-4 h-4" />}
+                {saving ? 'Saving...' : 'Save Banner'}
+              </button>
+              {saved && (
+                <span className="text-green-600 font-bold text-sm flex items-center gap-1">
+                  <Check className="w-4 h-4" /> Saved! Changes are now live.
+                </span>
+              )}
+            </div>
+          </div>
         )}
       </div>
     </div>

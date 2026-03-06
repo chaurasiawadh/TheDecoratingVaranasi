@@ -86,3 +86,14 @@ export interface CapturedMoment {
   imageUrl: string;
   timestamp?: any;
 }
+
+export interface HeaderBanner {
+  message: string;
+  isActive: boolean;
+}
+
+export interface HowItWorksStep {
+  id: string;       // e.g. "step1", "step2", "step3", "step4"
+  num: string;      // Admin-entered display number, e.g. "10", "25"
+  title: string;    // Static label, kept for reference
+}
