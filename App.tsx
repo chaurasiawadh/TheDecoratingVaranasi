@@ -122,10 +122,10 @@ const Home = () => {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             {[
-              { num: '01', title: 'Choose Service', desc: 'Browse our wide range of decoration themes.' },
-              { num: '02', title: 'Customize', desc: 'Add personal touches and specific requirements.' },
-              { num: '03', title: 'Book Online', desc: 'Fill the simple form to initiate the request.' },
-              { num: '04', title: 'Confirm', desc: 'Finalize details on WhatsApp with our expert.' }
+              { num: 'Step: 1', title: 'Choose Service', desc: 'Browse our wide range of decoration themes.' },
+              { num: 'Step: 2', title: 'Customize', desc: 'Add personal touches and specific requirements.' },
+              { num: 'Step: 3', title: 'Book Online', desc: 'Fill the simple form to initiate the request.' },
+              { num: 'Step: 4', title: 'Confirm', desc: 'Finalize details on WhatsApp with our expert.' }
             ].map((step, i) => (
               <motion.div
                 key={i}
@@ -134,7 +134,7 @@ const Home = () => {
                 transition={{ delay: i * 0.2 }}
                 className="text-center group"
               >
-                <div className="w-16 h-16 rounded-2xl bg-purple-50 text-primary font-bold text-2xl flex items-center justify-center mx-auto mb-6 group-hover:bg-primary group-hover:text-white transition-colors">
+                <div className="w-24 h-16 rounded-2xl bg-purple-50 text-primary font-bold text-xl flex items-center justify-center mx-auto mb-6 group-hover:bg-primary group-hover:text-white transition-colors">
                   {step.num}
                 </div>
                 <h3 className="font-bold text-xl mb-2">{step.title}</h3>
