@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Phone, Mail, MapPin, Send, Instagram, Facebook, CheckCircle, Code } from 'lucide-react';
+import { Phone, Mail, MapPin, Send, Instagram, Facebook, CheckCircle, Code, Youtube } from 'lucide-react';
 import { PHONE_NUMBER } from '../constants';
 import confetti from 'canvas-confetti';
 
@@ -176,6 +176,9 @@ Message: ${formData.message}
                                 </a>
                                 <a href="https://www.facebook.com/p/The-Decorating-Varanasi-61579304051679/" target="_blank" className="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center text-gray-600 hover:bg-blue-600 hover:text-white transition-all shadow-sm hover:shadow-lg">
                                     <Facebook className="w-6 h-6" />
+                                </a>
+                                <a href="https://youtube.com/@thedecoratingvaranasi?si=4wtzegDeBpCiYAaC" target="_blank" className="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center text-gray-600 hover:bg-red-600 hover:text-white transition-all shadow-sm hover:shadow-lg">
+                                    <Youtube className="w-6 h-6" />
                                 </a>
                             </div>
                         </div>
