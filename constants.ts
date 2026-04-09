@@ -2,7 +2,7 @@ import { Service, Package, Testimonial, ProductItem } from './types';
 
 export const PHONE_NUMBER = "919250333876";
 export const APP_NAME = "TheDecoratingVaranasi";
-export const LOGO_URL = "https://i.ibb.co/V0LTJJpZ/THE-DECORATINDG-VARANASI-NEW-LOGO-2.png";
+export const LOGO_URL = "https://h50dnezagk.ufs.sh/f/D6aCdVSqgCM4OsN2KgiZJBwSmp91iMHAVusjyNtor4eUhFXI";
 
 export const SERVICES: Service[] = [
   {

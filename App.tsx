@@ -12,7 +12,7 @@ import { LOGO_URL, APP_NAME } from './constants';
 import { CapturedMoments } from './components/CapturedMoments';
 import { TestimonialModal } from './components/TestimonialModal';
 import { motion } from 'framer-motion';
-import { Phone, Mail, MapPin, Instagram, Facebook } from 'lucide-react';
+import { Phone, Mail, MapPin, Instagram, Facebook, Youtube } from 'lucide-react';
 import { DataProvider, useData } from './contexts/DataContext';
 
 // ScrollToTop Component handles scrolling to top on route change
@@ -45,6 +45,9 @@ const Footer = () => (
           </a>
           <a href="https://www.facebook.com/p/The-Decorating-Varanasi-61579304051679/" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-primary transition-colors cursor-pointer">
             <Facebook className="w-5 h-5" />
+          </a>
+          <a href="https://youtube.com/@thedecoratingvaranasi?si=4wtzegDeBpCiYAaC" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-primary transition-colors cursor-pointer">
+            <Youtube className="w-5 h-5" />
           </a>
         </div>
       </div>
